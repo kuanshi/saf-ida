@@ -36,6 +36,4 @@ c.site_specific_performance(setname=[('All','All')])
 
 # plotting
 c.plot_result(setname=[('Los Angeles-1','Collapse')])
-c.plot_result(setname=[('San Francisco-1','Collapse')])
 c.plot_result(setname=[('Los Angeles-1','SDRmax')])
-c.plot_result(setname=[('San Francisco-1','SDRmax')])
