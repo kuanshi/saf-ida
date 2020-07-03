@@ -1,1 +1,1 @@
-# Site-Specific Adjustment Framework for IDA (SHAF-IDA)
+# Site-Specific Adjustment Framework for Incremental Dynamic Analysis (SHAF-IDA)
