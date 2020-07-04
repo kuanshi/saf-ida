@@ -17,3 +17,16 @@ a = NestedGroundMotionSet()
 ```python
 a.definekeyim(2,[7,7],SaRatio=[1,0.2,3,np.exp(-0.2),np.exp(1.0)],Ds575=[np.exp(1.0),np.exp(4.5)])
 ```
+3. Generating the grid:
+```python
+a.generategrid()
+```
+4. Defining the scaling factor limits: minimum scaling factor, maximum scaling factor, T<sub>1</sub>, Sa(T<sub>1</sub>) to scale to (optional):
+```python
+a.scalinglimit(0.5,5,10,1,0.9)
+```
+5. Defining the ground motion database and conducting the selection
+```python
+a.selectnestedrecord(gmdb_path='./data/GroundMotionCharacteristics.json')
+```
+
