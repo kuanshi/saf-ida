@@ -13,3 +13,7 @@ The example.py provides a simple demo for selecting the nested ground motion set
 ```python
 a = NestedGroundMotionSet()
 ```
+2. Setting up the number of dimensions, numbers of divisions, and the names and ranges of key intensity measure:
+```python
+a.definekeyim(2,[7,7],SaRatio=[1,0.2,3,np.exp(-0.2),np.exp(1.0)],Ds575=[np.exp(1.0),np.exp(4.5)])
+```
