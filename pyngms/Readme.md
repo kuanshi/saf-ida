@@ -9,4 +9,7 @@ The class NestedGroundMotionSet in this folder now supports to select ground mot
 
 The example.py provides a simple demo for selecting the nested ground motion set with SaRatio and Ds<sub>5-75</sub>, including five major steps:
 
-1. Item 1: 
+1. Creating the new NestedGroundMotionSet object:
+```python
+a = NestedGroundMotionSet()
+```
