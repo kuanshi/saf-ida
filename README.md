@@ -6,3 +6,9 @@ The multiple stripe analysis (MSA) ([Jalayer, 2003](https://ui.adsabs.harvard.ed
 </p>
 
 The incremental dynamic analysis (IDA) ([Vamvatsikos and Cornell, 2002](https://onlinelibrary.wiley.com/doi/abs/10.1002/eqe.141)) is another method commonly used to assess structural performances. In the IDA, one typically only need analyze the structure using a generic ground motion suite (e.g., [FEMA, 2009](https://www.fema.gov/media-library/assets/documents/16648)). The advantage is the IDA does not require users to conduct site-specific hazard analysis or to select ground motion records.  But, one major limitation is  the results only reflect the ground motion characteristics of the used record suite but not the hazard of any unique site. Preceeding with pioneer studies (e.g., [FEMA, 2009](https://www.fema.gov/media-library/assets/documents/16648); [Lin and Baker, 2013](https://epublications.marquette.edu/civengin_fac/40/), [Chandramohan, 2016](https://ir.canterbury.ac.nz/handle/10092/15263)), the Site-specific Hazard Adjustment Framework for Incremental Dynamic Analysis (SHAF-IDA) is developed for efficiently using IDA data to estimate site-specific structural performance, e.g., esitmating probabilistic distributions of engineering demand parameters (EDP), evalutating fragilities of damage measures (DM), and assessing collapse risks.
+
+As indicated in the right branch of the figure above, the SHAF-IDA has extra pre- and post-processing modules for the IDA, namely Nested Ground Motion Set and Hazard-Consistent Adjustment. The figure below lists their flowcharts.
+
+<p align="center">
+ <img width="60%" height="60%" src="https://github.com/kuanshi/shaf-ida/blob/master/doc/image/NGMS_HCA.png">
+</p>
