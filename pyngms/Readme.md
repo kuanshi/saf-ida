@@ -32,3 +32,4 @@ Once the selection is done, the names, response spectra, key intensiy measures, 
 ```python
 a.savedata()
 ```
+The selected records are then used in the IDA for the interested structure.
