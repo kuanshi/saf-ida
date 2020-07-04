@@ -5,3 +5,8 @@ The nested ground motion set is designed for the IDA to select a suite of record
  <img width="40%" height="40%" src="https://github.com/kuanshi/shaf-ida/blob/master/doc/image/NGMS_GRID.png">
 </p>
 
+The class NestedGroundMotionSet in this folder now supports to select ground motion records from the [NGA-West](https://peer.berkeley.edu/nga-west) and [NGA-Sub](https://www.risksciences.ucla.edu/nhr3/gmdata/preliminary-nga-subduction-records) ground motion databases to fit upto a 7-D grid target with intensity measures: SaRatio(T<sub>1</sub>), Ds<sub>5-75</sub>, Ds<sub>5-95</sub>, PGA, PGV, PGD, and Ia. These intensity measures of the two ground motion databases are pre-calculated in the [GroundMotionCharacteristics.json](https://github.com/kuanshi/shaf-ida/tree/master/pyngms/data). Other intensity measures can be included by modifying the JSON data file and the including the intensity name tag into the class.
+
+The example.py provides a simple demo for selecting the nested ground motion set with SaRatio and Ds<sub>5-75</sub>, including five major steps:
+
+1. Item 1: 
