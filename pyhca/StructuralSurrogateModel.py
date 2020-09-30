@@ -3,8 +3,17 @@
 import numpy as np
 import json
 from scipy import stats as spst
-from GlobalLinearModel import GlobalLinearRegression
-from LocalLinearModel import LocalLinearRegression
+
+# from GlobalLinearModel import GlobalLinearRegression
+# from LocalLinearModel import LocalLinearRegression
+import importlib.util
+module_path = "C:/Users/Francisco/Documents/GitHub/shaf-ida/pyhca"
+spec = importlib.util.spec_from_file_location("module.name", module_path + "/GlobalLinearModel.py")
+GlobalLinearModel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(GlobalLinearModel)
+spec = importlib.util.spec_from_file_location("module.name", module_path + "/LocalLinearModel.py")
+LocalLinearModel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(LocalLinearModel)
 
 __author__ = 'Kuanshi Zhong'
 
@@ -71,7 +80,7 @@ class SurrogateModel:
         # conditioning on T1
         self.T1 = self.gmdata['Conditional T1 (s)']
         # lower-bound period
-        self.Tra = np.linspace(0.05,0.95,19)
+        self.Tra = np.linspace(0.1,0.95,19)
         # upper-bound period
         self.Trb = np.linspace(1.05,3.00,40)
         # grid
@@ -211,7 +220,7 @@ class SurrogateModel:
                                np.array(self.gmdata[tmp_kim[
                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
                 if modeltag=='LLM':
-                    tmpmodel = LocalLinearRegression(
+                    tmpmodel = LocalLinearModel.LocalLinearRegression(
                             modelname='LLM',data=np.column_stack(
                                     (tmpX,np.log(self.imcol))),
                             kerneltype=modelcoef[0],
@@ -221,7 +230,7 @@ class SurrogateModel:
                     tmperr.append(tmpmodel.mse)
                     tmpoptlambda.append(tmpmodel.lambda_opt)
                 else:
-                    tmpmodel = GlobalLinearRegression(
+                    tmpmodel = GlobalLinearModel.GlobalLinearRegression(
                             modelname='GLM',data=np.column_stack(
                                     (tmpX,np.log(self.imcol))),
                                     modeltype=modeltag,modelpara=modelcoef)
@@ -235,34 +244,37 @@ class SurrogateModel:
             # optimal period range
             self.optTra['Collapse'] = self.vTra[opttag]
             self.optTrb['Collapse'] = self.vTrb[opttag]
+            print('Optimal period range for SaRatio = ' + str(self.optTra['Collapse'])\
+                  + 'T_1~'+ str(self.optTrb['Collapse']) + 'T_1')
+
             # collapse model
             tmpX = np.log(np.column_stack(
                     (self.saratio_pool[opttag].reshape((-1,1)),
                      np.array(self.gmdata[tmp_kim[
                              tmp_kim!='SaRatio']]).reshape((-1,1)))))
             if modeltag=='LLM':
-                self.col_model = LocalLinearRegression(
+                self.col_model = LocalLinearModel.LocalLinearRegression(
                         modelname='LLM',data=np.column_stack(
                                     (tmpX,np.log(self.imcol))),
                                 kerneltype=modelcoef[0],
                                 modelselection=modelcoef[1],
                                 lambdabound=modelcoef[2],ndiv=modelcoef[3])
             else:
-                self.col_model = GlobalLinearRegression(
+                self.col_model = GlobalLinearModel.GlobalLinearRegression(
                         modelname='GLM',data=np.column_stack(
                                     (tmpX,np.log(self.imcol))),
                         modeltype=modeltag,modelpara=modelcoef)
         else:
             tmp_kim = self.gmdata['Key IM']
             if modeltag=='LLM':
-                self.col_model = LocalLinearRegression(
+                self.col_model = LocalLinearModel.LocalLinearRegression(
                         modelname='LLM',data=np.column_stack(
                         (np.log([self.gmdata[tmp_kim]]).reshape((-1,2)),
                         np.log(self.imcol))),kerneltype=modelcoef[0],
                         modelselection=modelcoef[1],lambdabound=modelcoef[2],
                         ndiv=modelcoef[3])
             else:
-                self.col_model = GlobalLinearRegression(
+                self.col_model = GlobalLinearModel.GlobalLinearRegression(
                         modelname='GLM',data=np.column_stack(
                                 (np.log(self.gmdata[tmp_kim]),
                                 np.log(self.imcol))),
@@ -319,7 +331,7 @@ class SurrogateModel:
                         if modeltag=='LLM':
                             pass
                         else:
-                            tmpmodel = GlobalLinearRegression(
+                            tmpmodel = GlobalLinearModel.GlobalLinearRegression(
                                     modelname='GLM',data=np.column_stack((tmpX,tmpy)),
                                             modeltype=modeltag,modelpara=modelcoef)
                             # using -R^2 as error to be minimized
@@ -340,7 +352,7 @@ class SurrogateModel:
                     if modeltag=='LLM':
                         pass
                     else:
-                        self.edp_model[tagedp]['model'].append(GlobalLinearRegression(
+                        self.edp_model[tagedp]['model'].append(GlobalLinearModel.GlobalLinearRegression(
                                 modelname='GLM',data=np.column_stack((tmpX,tmpy)),
                                         modeltype=modeltag,modelpara=modelcoef))
         else:
@@ -359,7 +371,7 @@ class SurrogateModel:
                         for taggm in tmpSaEDP.keys():
                             tmpy.append(tmpSaEDP[taggm][taglevel])
                             tmpy = np.log(tmpy).reshape((-1,1))
-                            self.edp_model[tagedp]['model'] = GlobalLinearRegression(
+                            self.edp_model[tagedp]['model'] = GlobalLinearModel.GlobalLinearRegression(
                                     modelname='GLM',data=np.column_stack((
                                             np.log(self.gmdata[tmp_kim]),tmpy)),
                                             modeltype=modeltag,modelpara=modelcoef)          

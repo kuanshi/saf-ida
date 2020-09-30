@@ -18,7 +18,7 @@ ndiv = 20
 # getting im at EDP levels
 a.get_edp_im(edpim='Sa (g)',SDR=[lb_sdr,up_sdr,ndiv],PFA=[lb_pfa,up_pfa,ndiv])
 
-# gettting collapse model
+# getting collapse model
 a.compute_collapse_model(modeltag='LLM',modelcoef=['Gaussian',['CV',5],[0.5,2],20])
 #a.compute_collapse_model(modeltag='OLS',modelcoef=[]) # OLS model
 
