@@ -47,14 +47,21 @@ class SurrogateModel:
         self.dataid = tmpdata['Data ID']
         self.nameEDP = tmpdata['EDP name']
         self.nEDP = len(self.nameEDP)
-        self.nameGM = tmpdata['Ground motion name'] 
-        self.nGM = len(self.nameGM)
+        temp_nameGM = tmpdata['Ground motion name'] 
+        self.nGM = len(temp_nameGM)
         for gmtag in self.nameGM:
             self.idadata[gmtag] = tmpdata[gmtag]
         # Ground motion data
         if len(self.gmdatafile):
             with open(self.gmdatafile) as f:
                 self.gmdata = json.load(f)
+            # Sort the IDA data order in case it does not match the order
+            # in gmdata
+            idadata_sorted = dict()
+            for tar_gmname in self.gmdata['Ground motion name']:
+                idadata_sorted.update({tar_gmname: self.idadata[tar_gmname]})
+            self.idadata = idadata_sorted
+            self.nameGM = self.gmdata['Ground motion name']
             # computing SaRatio
             if 'SaRatio' in dict.keys(self.gmdata):
                 self.__compute_saratio()
