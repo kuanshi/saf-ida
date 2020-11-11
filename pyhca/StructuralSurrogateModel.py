@@ -49,7 +49,7 @@ class SurrogateModel:
         self.nEDP = len(self.nameEDP)
         temp_nameGM = tmpdata['Ground motion name'] 
         self.nGM = len(temp_nameGM)
-        for gmtag in self.nameGM:
+        for gmtag in temp_nameGM:
             self.idadata[gmtag] = tmpdata[gmtag]
         # Ground motion data
         if len(self.gmdatafile):
