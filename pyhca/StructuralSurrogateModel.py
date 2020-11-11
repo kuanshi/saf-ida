@@ -3,13 +3,13 @@
 import numpy as np
 import json
 from scipy import stats as spst
-from GlobalLinearModel import GlobalLinearRegression
-from LocalLinearModel import LocalLinearRegression
+#from GlobalLinearModel import GlobalLinearRegression
+#from LocalLinearModel import LocalLinearRegression
 
 __author__ = 'Kuanshi Zhong'
 
 class SurrogateModel:
-    
+
     def __init__(self,idadatafile=[],gmdatafile=[]):
         """
         __init__: initialization
@@ -35,7 +35,7 @@ class SurrogateModel:
         self.col_model = []
         # EDP model
         self.edp_model = {}
-        
+
     def __load_data(self):
         """
         __loadata: loading and storing ida and site data
@@ -47,7 +47,7 @@ class SurrogateModel:
         self.dataid = tmpdata['Data ID']
         self.nameEDP = tmpdata['EDP name']
         self.nEDP = len(self.nameEDP)
-        temp_nameGM = tmpdata['Ground motion name'] 
+        temp_nameGM = tmpdata['Ground motion name']
         self.nGM = len(temp_nameGM)
         for gmtag in temp_nameGM:
             self.idadata[gmtag] = tmpdata[gmtag]
@@ -69,7 +69,7 @@ class SurrogateModel:
                 self.optTra = {}
                 self.optTrb = {}
         print("Data loaded.")
-    
+
     def __compute_saratio(self):
         """
         __compute_saratio: computing SaRatio
@@ -100,7 +100,7 @@ class SurrogateModel:
             counttag = counttag+1
         self.saratio_pool = np.array(tmpsaratio)
         print("SaRatio computed.")
-        
+
     def get_collapse_im(self,cim='Sa (g)',cedp='SDRmax',climit=0.1):
         """
         get_collapse_im: collecting collapse intensity measures
@@ -121,7 +121,7 @@ class SurrogateModel:
         self.imcol_std_raw = np.std(np.log(self.imcol))
         print("Collapse data processed.")
         print("Median collapse "+cim+" = "+str(self.imcol_median_raw))
-        
+
     def get_edp_im(self,edpim='Sa (g)',**kwargs):
         """
         get_edp_im: computing intensity levels exceeding different EDP values
@@ -152,7 +152,7 @@ class SurrogateModel:
                         self.rangeEDP[edptag]['Range'].tolist(),
                         tmpedp,tmpsa,right=max(tmpsa))
         print(edpim+" computed.")
-        
+
     def __get_edp_range(self,edpkw=[],lim=[]):
         """
         __get_edp_range: computing the range of EDP values from IDA data
@@ -183,11 +183,11 @@ class SurrogateModel:
                 self.rangeEDP[edptag]['Number of divisions'] = self.ndiv
                 self.rangeEDP[edptag]['Range'] = np.exp(np.linspace(
                         np.log(tmpLB),np.log(tmpUB),self.ndiv))
-                
+
     def compute_collapse_model(self,modeltag='LLM',
                            modelcoef=['Gaussian',['CV',5],[0.5,2],50]):
         """
-        compute_collapse_model: searching the surrogate model 
+        compute_collapse_model: searching the surrogate model
         with the optimal SaRatio
         - Input:
             modeltag: 'LLM' (default) - local linear model,
@@ -195,7 +195,7 @@ class SurrogateModel:
             'ElasticNet' - global linear model with the elastic net method
             modelcoef: 'LLM' needs four - kernel type, selection method,
             [lambda_lowerbound,lambda_upperbound], and lambda division number;
-            'OLS' does not require any; and 'ElasticNet' needs two - alpha 
+            'OLS' does not require any; and 'ElasticNet' needs two - alpha
             and l1_ratio.
         """
         print("Computing collapse model.")
@@ -275,10 +275,10 @@ class SurrogateModel:
                                 np.log(self.imcol))),
                                 modeltype=modeltag,modelpara=modelcoef)
         print("Collapse model computed.")
-        
+
     def compute_edp_model(self,modeltag='OLS',modelcoef=[]):
         """
-        compute_edp_model: searching the surrogate model 
+        compute_edp_model: searching the surrogate model
         with the optimal SaRatio for different EDP
         - Input (similar to "get_collapse_model":
             modeltag: 'LLM' (default) - local linear model,
@@ -286,7 +286,7 @@ class SurrogateModel:
             'ElasticNet' - global linear model with the elastic net method
             modelcoef: 'LLM' needs four - kernel type, selection method,
             [lambda_lowerbound,lambda_upperbound], and lambda division number;
-            'OLS' does not require any; and 'ElasticNet' needs two - alpha 
+            'OLS' does not require any; and 'ElasticNet' needs two - alpha
             and l1_ratio.
         """
         print("Computing EDP models.")
@@ -300,10 +300,10 @@ class SurrogateModel:
         # searching the optimal period of SaRatio
         if 'SaRatio' in self.gmdata['Key IM']:
             tmp_kim = self.gmdata['Key IM']
-            
+
             # loop over all EDP variables
             for tagedp in self.nameEDP:
-                self.edp_model[tagedp] = {'optTra':[], 'optTrb':[], 
+                self.edp_model[tagedp] = {'optTra':[], 'optTrb':[],
                               'model': []}
                 tmpdiv = self.rangeEDP[tagedp]['Number of divisions']
                 # loop over all levels
@@ -369,7 +369,5 @@ class SurrogateModel:
                             self.edp_model[tagedp]['model'] = GlobalLinearRegression(
                                     modelname='GLM',data=np.column_stack((
                                             np.log(self.gmdata[tmp_kim]),tmpy)),
-                                            modeltype=modeltag,modelpara=modelcoef)          
+                                            modeltype=modeltag,modelpara=modelcoef)
         print("EDP models computed.")
-
-        
