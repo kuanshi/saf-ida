@@ -6,6 +6,7 @@ from scipy import stats as spst
 #from GlobalLinearModel import GlobalLinearRegression
 #from LocalLinearModel import LocalLinearRegression
 
+
 __author__ = 'Kuanshi Zhong'
 
 class SurrogateModel:
