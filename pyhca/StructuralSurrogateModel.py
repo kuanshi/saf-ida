@@ -3,8 +3,8 @@
 import numpy as np
 import json
 from scipy import stats as spst
-#from GlobalLinearModel import GlobalLinearRegression
-#from LocalLinearModel import LocalLinearRegression
+from .GlobalLinearModel import GlobalLinearRegression
+from .LocalLinearModel import LocalLinearRegression
 
 
 __author__ = 'Kuanshi Zhong'
