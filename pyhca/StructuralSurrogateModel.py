@@ -3,6 +3,7 @@
 import numpy as np
 import json
 from scipy import stats as spst
+from matplotlib import pyplot as plt
 #from GlobalLinearModel import GlobalLinearRegression
 #from LocalLinearModel import LocalLinearRegression
 
@@ -372,3 +373,27 @@ class SurrogateModel:
                                             np.log(self.gmdata[tmp_kim]),tmpy)),
                                             modeltype=modeltag,modelpara=modelcoef)
         print("EDP models computed.")
+
+    def plot_raw_collapse(self):
+        """
+        plot_raw_collapse: plot the raw collapse Sa versus supplemental IMs
+        - Input: none
+        - Output: 1: success, 2: error
+        """
+        print('Plotting raw collapse Sa versus IMs.')
+        if self.col_model:
+            for i in range(np.shape(self.col_model.X)[1]):
+                curfig = plt.figure(i)
+                curax = curfig.gca()
+                x = np.exp(self.col_model.X[:, i])
+                y = np.exp(self.col_model.y)
+                curax.plot(x,y,linestyle='None',marker='o', \
+                           markerfacecolor='k',markeredgecolor='k')
+                curax.grid()
+                plt.xlabel(self.gmdata['Key IM'][i])
+                plt.ylabel('Collapse Sa (g)')
+                plt.title('Collapse Sa vs. '+self.gmdata['Key IM'][i])
+                plt.show()
+        else:
+            print('No collapse models were found.')
+            return 0
