@@ -120,7 +120,7 @@ class SurrogateModel:
                 self.imcol[tmptag,0] = np.interp(climit,
                           tmpedp[loctag:loctag+1],tmpim[loctag:loctag+1])
         self.imcol_median_raw = spst.gmean(self.imcol)
-        self.imcol_std_raw = np.std(np.log(self.imcol))
+        self.imcol_std_raw = np.std(np.log(self.imcol), ddof=1)
         print("Collapse data processed.")
         print("Median collapse "+cim+" = "+str(self.imcol_median_raw))
 
