@@ -81,8 +81,12 @@ class SurrogateModel:
         self.T1 = self.gmdata['Conditional T1 (s)']
         # lower-bound period
         self.Tra = np.linspace(0.05,0.95,19)
+        # self.Tra = np.linspace(0.1, 0.1, 1)
         # upper-bound period
-        self.Trb = np.linspace(1.05,3.00,40)
+        self.Trb = np.linspace(1.05, min(3.00, 10 / self.T1), 40)  # limit upperbound to 10s since that is usually the
+        # available limit for GMPE
+        # self.Trb = np.linspace(min(3.00, 10 / self.T1), min(3.00, 10 / self.T1), 1)
+
         # grid
         self.gTra,self.gTrb = np.meshgrid(self.Tra,self.Trb)
         # vector
@@ -113,12 +117,15 @@ class SurrogateModel:
             tmptag = self.nameGM.index(gmtag)
             tmpim = np.array(self.idadata[gmtag][cim])
             tmpedp = np.array(self.idadata[gmtag][cedp])
+
             loctag = np.max(np.where(tmpedp<=climit))
             if loctag==np.size(self.idadata[gmtag][cim])-1:
                 self.imcol[tmptag,0] = tmpim[loctag]
             else:
-                self.imcol[tmptag,0] = np.interp(climit,
-                          tmpedp[loctag:loctag+1],tmpim[loctag:loctag+1])
+                self.imcol[tmptag, 0] = np.interp(climit, tmpedp, tmpim)
+                # self.imcol[tmptag,0] = np.interp(climit,
+                #           tmpedp[loctag:loctag+1],tmpim[loctag:loctag+1])
+
         self.imcol_median_raw = spst.gmean(self.imcol)
         self.imcol_std_raw = np.std(np.log(self.imcol), ddof=1)
         print("Collapse data processed.")
