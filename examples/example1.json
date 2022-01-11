@@ -1,0 +1,30 @@
+{
+    "Directory": {
+        "Input": "./",
+        "Output": "./Output",
+        "Work": "./"
+    },
+    "Type": ["GroundMotionSelection"],
+    "GroundMotionSelection": {
+        "IntensityMeasureGrid": {
+            "SaRatio": {
+                "Mesh": 7,
+                "Range": [0.5, 2.5],
+                "T1": 1.0,
+                "Ta": 0.2,
+                "Tb": 3.0
+            },
+            "Ds575": {
+                "Mesh": 7,
+                "Range": [3.0, 50.0]
+            }
+        },
+        "Scaling": {
+            "Min": 0.1,
+            "Max": 10.0,
+            "Penalty": 10.0,
+            "ReferenceT": 1.0,
+            "ReferenceSa": 0.9
+        }
+    }
+}
