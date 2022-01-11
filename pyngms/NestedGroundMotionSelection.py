@@ -3,17 +3,18 @@
 import os as os
 import numpy as np
 import json as json
+import pandas as pd
 
 __author__ = 'Kuanshi Zhong'
 
 class NestedGroundMotionSet:
 
-    def __init__(self,*argv):
+    def __init__(self,job_name=None):
         # ground motion set name
-        if len(argv):
-            self.name = argv
-        else:
+        if job_name is None:
             self.name = 'NGMS'
+        else:
+            self.name = job_name
         # ground motion name list
         self.gmname = []
         # ground motion tag
@@ -39,6 +40,10 @@ class NestedGroundMotionSet:
         self.gmdb_flag = 0
         # grid flag
         self.grid_flag = 0
+        # reference period used in scaling limit
+        self.sf_t = 1.0
+        # reference sa(sf_t) used in scaling limit
+        self.sf_target = 0.9
         """ 
         Note these are identified possible key intensity measures.
         More user-defined measures can be added with individual functions.
@@ -81,6 +86,48 @@ class NestedGroundMotionSet:
                 print("Please check the intensity measure name with ",
                       self.key_im)
                 return
+
+    def add_key_im(self, name=None, vrange=None, mesh=None, T1=None, Ta=None, Tb=None):
+        """
+        add_key_im: adding a key intensity measures
+        - Input:
+            name: IM name (string)
+            range: range of the IM values (list of two float numbers)
+            mesh: mesh size of the dimension (int)
+            T1, Ta, Tb: periods if adding SaRatio (float numbers)
+        """
+        if None in [name, vrange, mesh]:
+            print("Please check the name, range, and mesh")
+            return        
+        if 'SaRatio' in name and None in [T1, Ta, Tb]:
+            print("Please give T1, Ta, and Tb for SaRatio")
+            return
+        if name in self.key_im:
+            self.name_im.append(name)
+            if name == 'SaRatio':
+                # SaRatio(Ta,T1,Tb) needs 5 inputs
+                self.T1 = T1
+                # lower-bound T
+                self.Ta = Ta
+                # upper-bound T
+                self.Tb = Tb
+                # range of SaRatio
+                if len(self.bound_im) == 0:
+                    self.bound_im = np.array(vrange)
+                else:
+                    self.bound_im= np.vstack([self.bound_im, vrange])
+            else:
+                # others need 2 inputs
+                # range of SaRatio
+                if len(self.bound_im) == 0:
+                    self.bound_im = np.array(vrange)
+                else:
+                    self.bound_im= np.vstack([self.bound_im, vrange])
+            self.dim = self.dim+1
+            self.mesh = np.append(self.mesh, mesh)
+        else:
+            print("Please check the intensity measure name with ",self.key_im)
+            return
     
     def generategrid(self,**kwargs):
         """
@@ -97,13 +144,13 @@ class NestedGroundMotionSet:
                 self.range_im.append(np.exp(np.linspace(
                         np.log(self.bound_im[tag_dim,0]), 
                         np.log(self.bound_im[tag_dim,1]),
-                        self.mesh[tag_dim])))
+                        int(self.mesh[tag_dim]))))
             self.grid_im = np.meshgrid(*self.range_im)
             # number of nested ground motion in total
-            self.nGM = np.prod(self.mesh)
+            self.nGM = int(np.prod(self.mesh))
         elif 'random' in kwargs:
             for tmp1,tmp2 in kwargs.items:
-                self.nGM = tmp2
+                self.nGM = int(tmp2)
             loc_rand = np.random.rand(self.nGM,self.dim)
             self.grid_im = [[0]*self.nGM]*self.dim
             for tag_dim in range(0,self.dim):
@@ -111,7 +158,7 @@ class NestedGroundMotionSet:
                             self.bound_im[tag_dim][0])*loc_rand[:][tag_dim]
         else:
            for tmp1,tmp2 in kwargs.items:
-                self.nGM = tmp2
+                self.nGM = int(tmp2)
            """
            To be developed.
            """
@@ -143,20 +190,38 @@ class NestedGroundMotionSet:
         Note please follow the format as the example.
         """
         print("Loading ground motion database.")
-        with open(filename) as f:
-            tmpdata = json.load(f)
-        self.gmdb_nGM = tmpdata['numgm']
-        self.gmdb_period = np.array(tmpdata['psa_period'])
-        self.gmdb_name = tmpdata['name']
-        self.gmdb_dt = np.array(tmpdata['dt'])
-        self.gmdb_pga = np.array(tmpdata['PGA'])
-        self.gmdb_pgv = np.array(tmpdata['PGV'])
-        self.gmdb_pgd = np.array(tmpdata['PGD'])
-        self.gmdb_ds575 = np.array(tmpdata['Ds575'])
-        self.gmdb_ds595 = np.array(tmpdata['Ds595'])
-        self.gmdb_ia = np.array(tmpdata['Ia'])
-        self.gmdb_psa = np.array(tmpdata['PSA'])
-        self.gmdb_flag = 1
+        if filename.endswith('json'):
+            with open(filename) as f:
+                tmpdata = json.load(f)
+            self.gmdb_nGM = int(tmpdata['numgm'])
+            self.gmdb_period = np.array(tmpdata['psa_period'])
+            self.gmdb_name = tmpdata['name']
+            self.gmdb_dt = np.array(tmpdata['dt'])
+            self.gmdb_pga = np.array(tmpdata['PGA'])
+            self.gmdb_pgv = np.array(tmpdata['PGV'])
+            self.gmdb_pgd = np.array(tmpdata['PGD'])
+            self.gmdb_ds575 = np.array(tmpdata['Ds575'])
+            self.gmdb_ds595 = np.array(tmpdata['Ds595'])
+            self.gmdb_ia = np.array(tmpdata['Ia'])
+            self.gmdb_psa = np.array(tmpdata['PSA'])
+            self.gmdb_flag = 1
+        elif filename.endswith('csv'):
+            tmpdata = pd.read_csv(filename)
+            self.gmdb_nGM = tmpdata.shape[0]
+            self.gmdb_dt = np.array(tmpdata.get('dt', []))
+            self.gmdb_name = list(tmpdata.get('name',[]))
+            self.gmdb_pga = np.array(tmpdata.get('PGA',[]))
+            self.gmdb_pgv = np.array(tmpdata.get('PGV',[]))
+            self.gmdb_pgd = np.array(tmpdata.get('PGD',[]))
+            self.gmdb_ds575 = np.array(tmpdata.get('Ds575',[]))
+            self.gmdb_ds595 = np.array(tmpdata.get('Ds595',[]))
+            self.gmdb_ia = np.array(tmpdata.get('Ia',[]))
+            self.gmdb_period = np.array([float(x[3:-1]) for x in list(tmpdata.keys()) if x.startswith('SA(')])
+            self.gmdb_psa = np.array(tmpdata[[x for x in list(tmpdata.keys()) if x.startswith('SA(')]].values.tolist())
+            self.gmdb_flag = 1
+        else:
+            print("NestedGroundMotionSelection.__loadgroundmotiondata: Currently supporing JSON and CSV files only.")
+
         print("Ground motion database loaded.")
         
     def __computesaratio(self):
@@ -183,6 +248,7 @@ class NestedGroundMotionSet:
         print("Processing data.")
         # compute IM values of the database
         self.__groundmotiondataim()
+        print('Ground motion database parsed.')
         # scaling limits
         self.sf_loss = np.zeros((1,self.gmdb_nGM))
         tmpt = np.where(self.gmdb_period==np.round(self.sf_t,2))
@@ -267,11 +333,11 @@ class NestedGroundMotionSet:
                 self.gmsf.append(self.gmdb_sf[0,self.gmtag[-1]])
         print("Nested ground motion set selected.")
     
-    def savedata(self,output_path=[]):
+    def savedata(self,output_path=None):
         """
         savedata: saving the information of selected nested ground motion.
         """
-        if len(output_path)==0:
+        if output_path is None:
             output_path = os.getcwd()
         # collecting variables
         metadata = {}
@@ -284,11 +350,11 @@ class NestedGroundMotionSet:
         for name_im in self.name_im:
             metadata[name_im] = np.array(tmpim[:,tmptag]).tolist()
             tmptag = tmptag+1
-        metadata['Spectral period (s)'] = np.array(self.gmdb_period).tolist()
+        metadata['Spectral period (s)'] = self.gmdb_period.tolist()
         metadata['Response spectra(g)'] = np.array(self.psa).tolist()
         if self.sf_flag:
             metadata['Scaling factor'] = np.array(self.gmsf).tolist()
-        with open(output_path+'/'+self.name+'.json','w') as outfile:
+        with open(os.path.join(output_path,self.name+'.json'),'w') as outfile:
             json.dump(metadata,outfile,indent=4)
         print("Data saved.")
                           
