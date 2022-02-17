@@ -214,7 +214,11 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
         print('runSAF_IDA: output directory already exists.')
 
     # job type
-    job_type = job_info.get('Type',['GroundMotionSelection','HazardConsistentAdjustment'])
+    job_type = job_info.get('Type', None)
+    if job_type is None:
+        err_msg = 'run_saf_ida: Please specity "Type" in the configuraiton file.'
+        saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+        return 1
 
     # create SAF_IDA job
     saf_ida_job = SAF_IDA(dir_info=dir_info, job_name=job_name)
