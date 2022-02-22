@@ -4,8 +4,8 @@ import numpy as np
 import json
 from scipy import stats as spst
 from matplotlib import pyplot as plt
-from .GlobalLinearModel import GlobalLinearRegression
-from .LocalLinearModel import LocalLinearRegression
+from GlobalLinearModel import GlobalLinearRegression
+from LocalLinearModel import LocalLinearRegression
 
 
 __author__ = 'Kuanshi Zhong'
