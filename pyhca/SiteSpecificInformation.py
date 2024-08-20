@@ -163,7 +163,7 @@ class SiteData:
 
 class SiteInfo:
     
-    def __init__(self,dataname='SiteData',sitedatafile=None,siteconfigfile=None):
+    def __init__(self,dataname='SiteData',sitedatafile=None,siteconfigfile=None,site_data_dict=None):
         """
         __init__: initialization
         """
@@ -176,6 +176,8 @@ class SiteInfo:
             self.__load_data()
         elif self.siteconfigfile is not None:
             self.__site_config()
+        elif site_data_dict is not None:
+            self.__load_site_info(site_data_dict)
         else:
             print('SiteInfo.__init__: no site information is provided - please define sitedatafile or siteconfigfile')
             return
@@ -189,6 +191,13 @@ class SiteInfo:
         if len(self.sitedatafile):
             with open(self.sitedatafile) as f:
                 data = json.load(f)
+        self.nCase = data['Number of cases']
+        self.nameCase = data['Case name']
+        for tagcase in self.nameCase:
+            self.SiteCase[tagcase] = data[tagcase]
+        print("SiteInfo: site data loaded.")
+
+    def __load_site_info(self,data):
         self.nCase = data['Number of cases']
         self.nameCase = data['Case name']
         for tagcase in self.nameCase:
