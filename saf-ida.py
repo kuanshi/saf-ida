@@ -303,14 +303,14 @@ class SAF_IDA:
 def run_saf_ida(job_name = 'saf_ida', job_config = ''):
 
     # read job configuration
-    if not os.path.exists(args.job_config):
-        print('run_saf_ida: configuration file not found: {}'.format(args.job_config))
+    if not os.path.exists(job_config):
+        print('run_saf_ida: configuration file not found: {}'.format(job_config))
         return 1
     try:
-        with open(args.job_config) as f:
+        with open(job_config) as f:
             job_info = json.load(f)
     except:
-        print('run_saf_ida: malformatted configuration file: {}'.format(args.job_config))
+        print('run_saf_ida: malformatted configuration file: {}'.format(job_config))
         return 1
 
     # directory
