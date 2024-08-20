@@ -40,6 +40,7 @@ import argparse, json, os
 from general import *
 from pyngms import NestedGroundMotionSelection as NGMS
 from pyhca import SiteSpecificInformation as SSInfo
+from pyhca import StructuralSurrogateModel as SSM
 
 class SAF_IDA:
 
@@ -299,6 +300,33 @@ class SAF_IDA:
             return 1
         self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configurated.')
 
+    def model_training(self, train_config = None):
+         # load info
+         self.ida_datafile = train_config.get('IDADataFile')
+         self.ida_gmdatafile = train_config.get('IDAGMFile')
+         self.collapse_im = train_config.get('CollapseIM','Sa (g)')
+         self.collapse_edp = train_config.get('CollapseEDP','SDRmax')
+         self.collapse_limit = train_config.get('CollapseLimit',0.10)
+         self.saf_model = SSM.SurrogateModel(idadatafile=self.ida_datafile,gmdatafile=self.ida_gmdatafile)
+         # collecting collapse IM
+         self.saf_model.get_collapse_im(cim=self.collapse_im,cedp=self.collapse_edp,climit=self.collapse_limit)
+         # EDP type
+         self.edp_type = train_config.get('EDPType',[])
+         # EDP ranges
+         self.edp_range = train_config.get('EDPRange',dict())
+         # EDP IM
+         self.edp_im = train_config.get('EDPIM','Sa (g)')
+         # collecting EDP IM (it's hard-coded for SDR and PFA now - to fix this soon, KZ)
+         self.saf_model.get_edp_im(edpim=self.edp_im,SDR=self.edp_range.get('SDR',[-np.inf,np.inf]),PFA=self.edp_range.get('PFA',[-np.inf,np.inf]))
+         # collaspse model
+         self.col_model_type = train_config.get('CollapseModelType','OLS')
+         self.col_model_param = train_config.get('CollapseModelParam',[])
+         self.saf_model.compute_collapse_model(modeltag=self.col_model_type,modelcoef=self.col_model_param)
+         # EDP model
+         self.edp_model_type = train_config.get('EDPModelType','OLS')
+         self.edp_model_param = train_config.get('EDPModelParam',[])
+         self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
+
 
 def run_saf_ida(job_name = 'saf_ida', job_config = ''):
 
@@ -356,6 +384,17 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
             return 1
         # create site specific hazard information data
         saf_ida_job.get_site_specific_hazard(site_config=site_config)
+
+    if 'Training' in job_type:
+        # get training config
+        train_config = job_info.get('Training', None)
+        if train_config is None:
+            err_msg = 'run_saf_ida: Training not found in job configuration.'
+            saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        # create a training run
+        saf_ida_job.model_training(train_config=train_config)
+
 
 
 if __name__ == '__main__':
