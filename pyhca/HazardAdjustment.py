@@ -281,11 +281,11 @@ class SiteAdjustment:
                     rptag = rptag+1
                 prob = np.array(prob).transpose()[0]
                 # collecting estimated probability
-                self.ssp[tagcase]['Collapse']['Sa (g)'] = np.exp(tmpMsa)
-                self.ssp[tagcase]['Collapse']['Est. Pcol'] = prob
+                self.ssp[tagcase]['Collapse']['Sa (g)'] = np.exp(tmpMsa).tolist()
+                self.ssp[tagcase]['Collapse']['Est. Pcol'] = prob.tolist()
                 # MLE for log mean and standard dev. of collapse fragility
                 self.ssp[tagcase]['Collapse']['Fragility'] = self.__mle_normpara(
-                        np.array(tmpMsa).flatten(),prob)
+                        np.array(tmpMsa).flatten(),prob).tolist()
                 print("Adjusted median collapse Sa (g): "+ \
                       str(np.exp(self.ssp[tagcase]['Collapse']['Fragility'][0])))
                 print("Adjusted dispersion of collapse Sa: "+ \
@@ -354,7 +354,7 @@ class SiteAdjustment:
                     cond_CDF[0] = 0.0
                     ## estimating log mean and standard deviation of EDP
                     self.ssp[tagcase][tagedp][tagRP] = self.__mle_normpara(
-                            np.log(self.rangeEDP[tagedp]['Range']),cond_CDF)
+                            np.log(self.rangeEDP[tagedp]['Range']),cond_CDF).tolist()
                     print("Adjusted median of "+tagcase[1]+" at RP"+str(tagRP)+": "+ \
                           str(np.exp(self.ssp[tagcase][tagedp][tagRP][0])))
                     print("Adjusted std of "+tagcase[1]+" at RP"+str(tagRP)+": "+ \
