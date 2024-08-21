@@ -1,5 +1,6 @@
 """Surrogate models for structural performance metrics"""
-
+import os, sys
+sys.path.append(os.path.dirname(__file__))
 import numpy as np
 import json
 from scipy import stats as spst
