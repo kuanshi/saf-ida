@@ -293,6 +293,9 @@ class SAF_IDA:
             return 1
         self.logfile.write_msg(msg='SAF_IDA.config_groundmotions: ground motion selection completed.')
 
+        # return
+        return 0
+
     def get_site_specific_hazard(self, site_config = None):
         # load site configuration
         if self._parse_site_config(site_config):
@@ -301,32 +304,38 @@ class SAF_IDA:
             return 1
         self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configurated.')
 
+        # return
+        return 0
+
     def model_training(self, input_dir, train_config = None):
-         # load info
-         self.ida_datafile = os.path.join(input_dir,train_config.get('IDADataFile'))
-         self.ida_gmdatafile = os.path.join(input_dir, train_config.get('IDAGMFile'))
-         self.collapse_im = train_config.get('CollapseIM','Sa (g)')
-         self.collapse_edp = train_config.get('CollapseEDP','SDRmax')
-         self.collapse_limit = train_config.get('CollapseLimit',0.10)
-         self.saf_model = SSM.SurrogateModel(idadatafile=self.ida_datafile,gmdatafile=self.ida_gmdatafile)
-         # collecting collapse IM
-         self.saf_model.get_collapse_im(cim=self.collapse_im,cedp=self.collapse_edp,climit=self.collapse_limit)
-         # EDP type
-         self.edp_type = train_config.get('EDPType',[])
-         # EDP ranges
-         self.edp_range = train_config.get('EDPRange',dict())
-         # EDP IM
-         self.edp_im = train_config.get('EDPIM','Sa (g)')
-         # collecting EDP IM (it's hard-coded for SDR and PFA now - to fix this soon, KZ)
-         self.saf_model.get_edp_im(edpim=self.edp_im,SDR=self.edp_range.get('SDR',[-np.inf,np.inf]),PFA=self.edp_range.get('PFA',[-np.inf,np.inf]))
-         # collaspse model
-         self.col_model_type = train_config.get('CollapseModelType','OLS')
-         self.col_model_param = train_config.get('CollapseModelParam',[])
-         self.saf_model.compute_collapse_model(modeltag=self.col_model_type,modelcoef=self.col_model_param)
-         # EDP model
-         self.edp_model_type = train_config.get('EDPModelType','OLS')
-         self.edp_model_param = train_config.get('EDPModelParam',[])
-         self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
+        # load info
+        self.ida_datafile = os.path.join(input_dir,train_config.get('IDADataFile'))
+        self.ida_gmdatafile = os.path.join(input_dir, train_config.get('IDAGMFile'))
+        self.collapse_im = train_config.get('CollapseIM','Sa (g)')
+        self.collapse_edp = train_config.get('CollapseEDP','SDRmax')
+        self.collapse_limit = train_config.get('CollapseLimit',0.10)
+        self.saf_model = SSM.SurrogateModel(idadatafile=self.ida_datafile,gmdatafile=self.ida_gmdatafile)
+        # collecting collapse IM
+        self.saf_model.get_collapse_im(cim=self.collapse_im,cedp=self.collapse_edp,climit=self.collapse_limit)
+        # EDP type
+        self.edp_type = train_config.get('EDPType',[])
+        # EDP ranges
+        self.edp_range = train_config.get('EDPRange',dict())
+        # EDP IM
+        self.edp_im = train_config.get('EDPIM','Sa (g)')
+        # collecting EDP IM (it's hard-coded for SDR and PFA now - to fix this soon, KZ)
+        self.saf_model.get_edp_im(edpim=self.edp_im,SDR=self.edp_range.get('SDR',[-np.inf,np.inf]),PFA=self.edp_range.get('PFA',[-np.inf,np.inf]))
+        # collaspse model
+        self.col_model_type = train_config.get('CollapseModelType','OLS')
+        self.col_model_param = train_config.get('CollapseModelParam',[])
+        self.saf_model.compute_collapse_model(modeltag=self.col_model_type,modelcoef=self.col_model_param)
+        # EDP model
+        self.edp_model_type = train_config.get('EDPModelType','OLS')
+        self.edp_model_param = train_config.get('EDPModelParam',[])
+        self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
+
+        # return
+        return 0
 
     def model_prediction(self, pred_config, output_dir):
         # load info
@@ -336,8 +345,52 @@ class SAF_IDA:
         # prediction
         self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
         self.site_adj.site_specific_performance(setname=self.pred_response)
-        with open(os.path.join(output_dir,'saf-ida_{}.json'.format(self.site_name)),'w') as f:
-            json.dump(self.site_adj.ssp[list(self.site_adj.ssp.keys())[0]], f)
+        # save
+        filename = pred_config.get('ResultFilename',None)
+        self.save_to_file(filename=filename)
+
+
+    def save_to_file(self, filename=None, outdir=None):
+        # output directory
+        if outdir is None:
+            outdir = self.output_dir
+        # file path
+        if filename is None:
+            filename = 'saf-ida.json'
+        outpath = os.path.join(outdir,filename)
+        # convert data to json first
+        self.res = dict()
+        res_list = list(self.site_adj.ssp.keys())
+        for cur_res in res_list:
+            self.res.update(self.site_adj.ssp.get(cur_res))
+        # get the file format
+        if outpath.endswith('.csv'):
+            tmp = dict()
+            # csv
+            for key1, value1 in self.res.items():
+                if key1 == 'Collapse':
+                    tmp.update({'Collapse Capacity': value1.get('Fragility')})
+                else:
+                    if type(value1) is dict:
+                        for key2, value2 in value1.items():
+                            cur_key = '{}-{}'.format(key1,key2)
+                            tmp.update({cur_key:value2})
+                    else:
+                        tmp.update({cur_key:np.array(value1).flatten().tolist()})
+            tmp_df = pd.DataFrame.from_dict(tmp)
+            tmp_df.to_csv(outpath)
+
+        elif outpath.endswith('.json'):
+            # json
+            with open(outpath,'w') as f:
+                json.dump(self.res, f, indent=2)
+        else:
+            err_msg = 'SAF_IDA.save_to_file: the file format is not supported (please reselect from csv and json).'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        
+        # return
+        return 0
 
 
 def run_saf_ida(job_name = 'saf_ida', job_config = ''):
