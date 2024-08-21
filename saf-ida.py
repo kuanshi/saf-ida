@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 Leland Stanford Junior University
-# Copyright (c) 2021 The Regents of the University of California
+# Copyright (c) 2024 Leland Stanford Junior University
+# Copyright (c) 2024 The Regents of the University of California
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@ from general import *
 from pyngms import NestedGroundMotionSelection as NGMS
 from pyhca import SiteSpecificInformation as SSInfo
 from pyhca import StructuralSurrogateModel as SSM
+from pyhca import HazardAdjustment as HA
 
 class SAF_IDA:
 
@@ -300,10 +301,10 @@ class SAF_IDA:
             return 1
         self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configurated.')
 
-    def model_training(self, train_config = None):
+    def model_training(self, input_dir, train_config = None):
          # load info
-         self.ida_datafile = train_config.get('IDADataFile')
-         self.ida_gmdatafile = train_config.get('IDAGMFile')
+         self.ida_datafile = os.path.join(input_dir,train_config.get('IDADataFile'))
+         self.ida_gmdatafile = os.path.join(input_dir, train_config.get('IDAGMFile'))
          self.collapse_im = train_config.get('CollapseIM','Sa (g)')
          self.collapse_edp = train_config.get('CollapseEDP','SDRmax')
          self.collapse_limit = train_config.get('CollapseLimit',0.10)
@@ -326,6 +327,17 @@ class SAF_IDA:
          self.edp_model_type = train_config.get('EDPModelType','OLS')
          self.edp_model_param = train_config.get('EDPModelParam',[])
          self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
+
+    def model_prediction(self, pred_config, output_dir):
+        # load info
+        self.pred_response = [('All','All')]
+        # site
+        cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_data_dict=self.site_data_dict)
+        # prediction
+        self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
+        self.site_adj.site_specific_performance(setname=self.pred_response)
+        with open(os.path.join(output_dir,'saf-ida_{}.json'.format(self.site_name)),'w') as f:
+            json.dump(self.site_adj.ssp[list(self.site_adj.ssp.keys())[0]], f)
 
 
 def run_saf_ida(job_name = 'saf_ida', job_config = ''):
@@ -393,8 +405,17 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
             saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
             return 1
         # create a training run
-        saf_ida_job.model_training(train_config=train_config)
+        saf_ida_job.model_training(input_dir=input_dir, train_config=train_config)
 
+    if 'Prediction' in job_type:
+        # get training config
+        pred_config = job_info.get('Prediction', None)
+        if pred_config is None:
+            err_msg = 'run_saf_ida: Prediction not found in job configuration.'
+            saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        # create a training run
+        saf_ida_job.model_prediction(pred_config=pred_config, output_dir=output_dir)
 
 
 if __name__ == '__main__':
