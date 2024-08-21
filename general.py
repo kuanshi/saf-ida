@@ -61,8 +61,6 @@ class DBServer:
         self.item_name_list = []
         self.basic()
         self.dir_export = self._create_export_dir()
-        self._item_list = ITEM_LIST
-        self._item_adds = ITEM_ADDS
             
     
     def basic(self):
