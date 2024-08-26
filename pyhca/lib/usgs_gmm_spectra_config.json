@@ -1,0 +1,5977 @@
+{
+    "status": "usage",
+    "description": "Compute deterministic response spectra",
+    "syntax": "https://earthquake.usgs.gov/nshmp-haz-ws/gmm/spectra?",
+    "parameters": {
+      "Mw": {
+        "label": "Magnitude",
+        "info": "The moment magnitude of an earthquake",
+        "units": null,
+        "min": -2.0,
+        "max": 9.7,
+        "value": 6.5
+      },
+      "rJB": {
+        "label": "Joyner-Boore Distance",
+        "info": "The shortest distance from a site to the surface projection of a rupture, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 1000.0,
+        "value": 10.0
+      },
+      "rRup": {
+        "label": "Rupture Distance",
+        "info": "The shortest distance from a site to a rupture, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 1000.0,
+        "value": 10.3
+      },
+      "rX": {
+        "label": "Distance X",
+        "info": "The shortest distance from a site to the extended trace a fault, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 1000.0,
+        "value": 10.0
+      },
+      "dip": {
+        "label": "Dip",
+        "info": "The dip of a rupture surface, in degrees",
+        "units": "°",
+        "min": 0.0,
+        "max": 90.0,
+        "value": 90.0
+      },
+      "width": {
+        "label": "Width",
+        "info": "The width of a rupture surface, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 60.0,
+        "value": 14.0
+      },
+      "zTop": {
+        "label": "Depth",
+        "info": "The depth to the top of a rupture surface, in kilometers and positive-down",
+        "units": "km",
+        "min": 0.0,
+        "max": 700.0,
+        "value": 0.5
+      },
+      "zHyp": {
+        "label": "Hypocentral Depth",
+        "info": "The depth to the hypocenter on a rupture surface, in kilometers and positive-down",
+        "units": "km",
+        "min": 0.0,
+        "max": 700.0,
+        "value": 7.5
+      },
+      "rake": {
+        "label": "Rake",
+        "info": "The rake (or sense of slip) of a rupture surface, in degrees",
+        "units": "°",
+        "min": -180.0,
+        "max": 180.0,
+        "value": 0.0
+      },
+      "vs30": {
+        "label": "Vs30",
+        "info": "The average shear-wave velocity down to 30 meters, in kilometers per second",
+        "units": "m/s",
+        "min": 150.0,
+        "max": 3000.0,
+        "value": 760.0
+      },
+      "vsInf": {
+        "label": "Vs30 Inferred",
+        "info": "Whether Vs30 was measured or inferred",
+        "value": true
+      },
+      "z1p0": {
+        "label": "Depth to Vs=1.0 km/s",
+        "info": "Depth to a shear-wave velocity of 1.0 kilometers per second, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 5.0,
+        "value": null
+      },
+      "z2p5": {
+        "label": "Depth to Vs=2.5 km/s",
+        "info": "Depth to a shear-wave velocity of 2.5 kilometers per second, in kilometers",
+        "units": "km",
+        "min": 0.0,
+        "max": 10.0,
+        "value": null
+      },
+      "gmm": {
+        "label": "Ground Motion Models",
+        "info": "Empirical models of ground motion",
+        "values": [
+          {
+            "id": "AS_97",
+            "label": "Abrahamson & Silva (1997)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "ASK_14",
+            "label": "Abrahamson, Silva & Kamai (2014)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 40.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vsInf",
+                "min": false,
+                "max": true
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "ASK_14_BASIN",
+            "label": "Abrahamson, Silva & Kamai (2014) : Basin",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 40.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vsInf",
+                "min": false,
+                "max": true
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_CASCADIA_INTERFACE",
+            "label": "Atkinson & Boore (2003) : Cascadia : Interface : SatMw=8.5",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_CASCADIA_SLAB_LOW_SAT",
+            "label": "Atkinson & Boore (2003) : Cascadia : Slab : SatMw=7.8",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_CASCADIA_SLAB",
+            "label": "Atkinson & Boore (2003) : Cascadia : Slab : SatMw=8.0",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_GLOBAL_INTERFACE",
+            "label": "Atkinson & Boore (2003) : Global : Interface : SatMw=8.5",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_GLOBAL_SLAB_LOW_SAT",
+            "label": "Atkinson & Boore (2003) : Global : Slab : SatMw=7.8",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_03_GLOBAL_SLAB",
+            "label": "Atkinson & Boore (2003) : Global : Slab : SatMw=8.0",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AB_06_140BAR",
+            "label": "Atkinson & Boore (2006) : 140 bar",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P025",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA1P0",
+              "SA1P25",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "AB_06_200BAR",
+            "label": "Atkinson & Boore (2006) : 200 bar",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P025",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA1P0",
+              "SA1P25",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "AB_06_PRIME",
+            "label": "Atkinson & Boore (2006) : Prime",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P03",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "AM_09_INTERFACE",
+            "label": "Atkinson & Macias (2009) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "AM_09_INTERFACE_BASIN",
+            "label": "Atkinson & Macias (2009) : Interface : Basin",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "ATKINSON_08_PRIME",
+            "label": "Atkinson (2008): Prime",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "ATKINSON_10",
+            "label": "Atkinson (2010) : Hawaii",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1300.0
+              }
+            ]
+          },
+          {
+            "id": "ATKINSON_10_CALDERA",
+            "label": "Atkinson (2010) : Hawaii : Caldera",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1300.0
+              }
+            ]
+          },
+          {
+            "id": "ATKINSON_15",
+            "label": "Atkinson (2015)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P03",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.0,
+                "max": 6.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "BCHYDRO_12_INTERFACE",
+            "label": "BC Hydro (2012) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "BCHYDRO_12_INTERFACE_BASIN",
+            "label": "BC Hydro (2012) : Interface : Basin",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "BCHYDRO_12_SLAB",
+            "label": "BC Hydro (2012) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "BCHYDRO_12_SLAB_BASIN",
+            "label": "BC Hydro (2012) : Slab : Basin",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "BA_08",
+            "label": "Boore & Atkinson (2008)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "PGD",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1300.0
+              }
+            ]
+          },
+          {
+            "id": "BJF_97",
+            "label": "Boore et al. (1997)",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P7",
+              "SA0P75",
+              "SA0P8",
+              "SA0P9",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 80.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "BSSA_14",
+            "label": "Boore, Stewart, Seyhan & Atkinson (2014)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 400.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "BSSA_14_BASIN",
+            "label": "Boore, Stewart, Seyhan & Atkinson (2014) : Basin",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 400.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "CB_03",
+            "label": "Campbell & Bozorgnia (2003)",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.8,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "CB_08",
+            "label": "Campbell & Bozorgnia (2008)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "PGD",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 15.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "CB_14",
+            "label": "Campbell & Bozorgnia (2014)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.3,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "CB_14_BASIN",
+            "label": "Campbell & Bozorgnia (2014) : Basin",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.3,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "CAMPBELL_97",
+            "label": "Campbell (1997)",
+            "supportedImts": [
+              "PGA",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "CAMPBELL_03",
+            "label": "Campbell (2003)",
+            "supportedImts": [
+              "PGA",
+              "SA0P03",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "CY_08",
+            "label": "Chiou & Youngs (2008)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 15.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "CY_14",
+            "label": "Chiou & Youngs (2014)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.5,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "CY_14_BASIN",
+            "label": "Chiou & Youngs (2014) : Basin",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.5,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 180.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_CEUS_2014",
+            "label": "Combined: CEUS 2014 (4.*)",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": -2.0,
+                "max": 9.7
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 700.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 700.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 3000.0
+              },
+              {
+                "id": "vsInf",
+                "min": false,
+                "max": true
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 5.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_CEUS_2018",
+            "label": "Combined: CEUS 2018 (5.0)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_CEUS_2018_CPA",
+            "label": "Combined: CEUS 2018 (Gulf Coast)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_WUS_2014_41",
+            "label": "Combined: WUS 2014 (4.1)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.3,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_WUS_2014_42",
+            "label": "Combined: WUS 2014 (4.2, no Idriss)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.3,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "COMBINED_WUS_2018",
+            "label": "Combined: WUS 2018 (5.0, deep basins)",
+            "supportedImts": [
+              "PGA",
+              "PGV",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 3.3,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "width",
+                "min": 0.0,
+                "max": 60.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z2p5",
+                "min": 0.0,
+                "max": 10.0
+              }
+            ]
+          },
+          {
+            "id": "FRANKEL_96",
+            "label": "Frankel et al. (1996)",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "GK_15",
+            "label": "Graizer & Kalkan (2015)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 250.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 1300.0
+              }
+            ]
+          },
+          {
+            "id": "IDRISS_14",
+            "label": "Idriss (2014)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.5
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 150.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 150.0
+              },
+              {
+                "id": "rX",
+                "min": 0.0,
+                "max": 150.0
+              },
+              {
+                "id": "dip",
+                "min": 0.0,
+                "max": 90.0
+              },
+              {
+                "id": "zTop",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 450.0,
+                "max": 1500.0
+              },
+              {
+                "id": "z1p0",
+                "min": 0.0,
+                "max": 3.0
+              }
+            ]
+          },
+          {
+            "id": "MCVERRY_00_CRUSTAL",
+            "label": "McVerry et al. (2000) : Crustal",
+            "supportedImts": [
+              "PGA",
+              "SA0P075",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "MCVERRY_00_INTERFACE",
+            "label": "McVerry et al. (2000) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P075",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "MCVERRY_00_SLAB",
+            "label": "McVerry et al. (2000) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P075",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "MCVERRY_00_VOLCANIC",
+            "label": "McVerry et al. (2000) : Volcanic",
+            "supportedImts": [
+              "PGA",
+              "SA0P075",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 200.0
+              },
+              {
+                "id": "zHyp",
+                "min": 0.0,
+                "max": 20.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1500.0
+              }
+            ]
+          },
+          {
+            "id": "MT_97",
+            "label": "Munson & Thurber (1997)",
+            "supportedImts": [
+              "PGA",
+              "SA0P2"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 88.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_SEEDS",
+            "label": "NGA-East Updated Seed Tree",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_SEEDS_CPA",
+            "label": "NGA-East Updated Seed Tree (Gulf Coast)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS",
+            "label": "NGA-East for USGS (2017)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_CPA",
+            "label": "NGA-East for USGS (2017) (Gulf Coast)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_1",
+            "label": "NGA-East for USGS (2017) : Sammons : 01",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_2",
+            "label": "NGA-East for USGS (2017) : Sammons : 02",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_3",
+            "label": "NGA-East for USGS (2017) : Sammons : 03",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_4",
+            "label": "NGA-East for USGS (2017) : Sammons : 04",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_5",
+            "label": "NGA-East for USGS (2017) : Sammons : 05",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_6",
+            "label": "NGA-East for USGS (2017) : Sammons : 06",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_7",
+            "label": "NGA-East for USGS (2017) : Sammons : 07",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_8",
+            "label": "NGA-East for USGS (2017) : Sammons : 08",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_9",
+            "label": "NGA-East for USGS (2017) : Sammons : 09",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_10",
+            "label": "NGA-East for USGS (2017) : Sammons : 10",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_11",
+            "label": "NGA-East for USGS (2017) : Sammons : 11",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_12",
+            "label": "NGA-East for USGS (2017) : Sammons : 12",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_13",
+            "label": "NGA-East for USGS (2017) : Sammons : 13",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_14",
+            "label": "NGA-East for USGS (2017) : Sammons : 14",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_15",
+            "label": "NGA-East for USGS (2017) : Sammons : 15",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_16",
+            "label": "NGA-East for USGS (2017) : Sammons : 16",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_USGS_17",
+            "label": "NGA-East for USGS (2017) : Sammons : 17",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_1CCSP",
+            "label": "NGA-East for USGS (2017) : Seed : 1CCSP",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_1CVSP",
+            "label": "NGA-East for USGS (2017) : Seed : 1CVSP",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_2CCSP",
+            "label": "NGA-East for USGS (2017) : Seed : 2CCSP",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_2CVSP",
+            "label": "NGA-East for USGS (2017) : Seed : 2CVSP",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_A04",
+            "label": "NGA-East for USGS (2017) : Seed : B_a04",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_AB14",
+            "label": "NGA-East for USGS (2017) : Seed : B_ab14",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_AB95",
+            "label": "NGA-East for USGS (2017) : Seed : B_ab95",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_BCA10D",
+            "label": "NGA-East for USGS (2017) : Seed : B_bca10d",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_BS11",
+            "label": "NGA-East for USGS (2017) : Seed : B_bs11",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_B_SGD02",
+            "label": "NGA-East for USGS (2017) : Seed : B_sgd02",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_FRANKEL",
+            "label": "NGA-East for USGS (2017) : Seed : Frankel",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_GRAIZER",
+            "label": "NGA-East for USGS (2017) : Seed : Graizer",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_GRAIZER16",
+            "label": "NGA-East for USGS (2017) : Seed : Graizer16 (updated)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_GRAIZER17",
+            "label": "NGA-East for USGS (2017) : Seed : Graizer17 (updated)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_HA15",
+            "label": "NGA-East for USGS (2017) : Seed : HA15",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_PEER_EX",
+            "label": "NGA-East for USGS (2017) : Seed : PEER_EX",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_PEER_GP",
+            "label": "NGA-East for USGS (2017) : Seed : PEER_GP",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_PZCT15_M1SS",
+            "label": "NGA-East for USGS (2017) : Seed : PZCT15_M1SS",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_PZCT15_M2ES",
+            "label": "NGA-East for USGS (2017) : Seed : PZCT15_M2ES",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_SP15",
+            "label": "NGA-East for USGS (2017) : Seed : SP15",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_SP16",
+            "label": "NGA-East for USGS (2017) : Seed : SP16 (updated)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEED_YA15",
+            "label": "NGA-East for USGS (2017) : Seed : YA15",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.2
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1500.0
+              },
+              {
+                "id": "vs30",
+                "min": 200.0,
+                "max": 3000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_SUB_USGS_INTERFACE",
+            "label": "NGA-Subduction USGS (2018) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_SUB_USGS_INTERFACE_NO_EPI",
+            "label": "NGA-Subduction USGS (2018) : Interface (no epi)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_SUB_USGS_SLAB",
+            "label": "NGA-Subduction USGS (2018) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "NGA_SUB_USGS_SLAB_NO_EPI",
+            "label": "NGA-Subduction USGS (2018) : Slab (no epi)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P6",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA6P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "PEZESHK_11",
+            "label": "Pezeshk et al. (2011)",
+            "supportedImts": [
+              "PGA",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0",
+              "SA3P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "SADIGH_97",
+            "label": "Sadigh et al. (1997)",
+            "supportedImts": [
+              "PGA",
+              "SA0P075",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 100.0
+              },
+              {
+                "id": "rake",
+                "min": -180.0,
+                "max": 180.0
+              },
+              {
+                "id": "vs30",
+                "min": 250.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "SILVA_02",
+            "label": "Silva et al. (2002)",
+            "supportedImts": [
+              "PGA",
+              "SA0P05",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "SOMERVILLE_01",
+            "label": "Somerville et al. (2001)",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "TP_05",
+            "label": "Tavakoli & Pezeshk (2005)",
+            "supportedImts": [
+              "PGA",
+              "SA0P05",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "TORO_97_MW",
+            "label": "Toro et al. (1997) : Mw",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P5",
+              "SA1P0",
+              "SA2P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 4.0,
+                "max": 8.0
+              },
+              {
+                "id": "rJB",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 2000.0
+              }
+            ]
+          },
+          {
+            "id": "WONG_15",
+            "label": "Wong et al. (2015)",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 8.0
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 300.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 60.0
+              },
+              {
+                "id": "vs30",
+                "min": 760.0,
+                "max": 760.0
+              }
+            ]
+          },
+          {
+            "id": "YOUNGS_97_INTERFACE",
+            "label": "Youngs et al. (1997) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "YOUNGS_97_SLAB",
+            "label": "Youngs et al. (1997) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P1",
+              "SA0P2",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_06_INTERFACE",
+            "label": "Zhao et al. (2006) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_06_INTERFACE_BASIN",
+            "label": "Zhao et al. (2006) : Interface : Basin",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_06_SLAB",
+            "label": "Zhao et al. (2006) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_06_SLAB_BASIN",
+            "label": "Zhao et al. (2006) : Slab : Basin",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P05",
+              "SA0P075",
+              "SA0P1",
+              "SA0P15",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P4",
+              "SA0P5",
+              "SA0P75",
+              "SA1P0",
+              "SA1P5",
+              "SA2P0",
+              "SA3P0",
+              "SA4P0",
+              "SA5P0",
+              "SA7P5",
+              "SA10P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_16_INTERFACE",
+            "label": "Zhao et al. (2016) : Interface",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P06",
+              "SA0P07",
+              "SA0P08",
+              "SA0P09",
+              "SA0P1",
+              "SA0P12",
+              "SA0P14",
+              "SA0P15",
+              "SA0P16",
+              "SA0P18",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P35",
+              "SA0P4",
+              "SA0P45",
+              "SA0P5",
+              "SA0P6",
+              "SA0P7",
+              "SA0P8",
+              "SA0P9",
+              "SA1P0",
+              "SA1P25",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA3P5",
+              "SA4P0",
+              "SA4P5",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_16_SHALLOW_CRUST",
+            "label": "Zhao et al. (2016) : Shallow Crust",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P06",
+              "SA0P07",
+              "SA0P08",
+              "SA0P09",
+              "SA0P1",
+              "SA0P12",
+              "SA0P14",
+              "SA0P15",
+              "SA0P16",
+              "SA0P18",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P35",
+              "SA0P4",
+              "SA0P45",
+              "SA0P5",
+              "SA0P6",
+              "SA0P7",
+              "SA0P8",
+              "SA0P9",
+              "SA1P0",
+              "SA1P25",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA3P5",
+              "SA4P0",
+              "SA4P5",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_16_SLAB",
+            "label": "Zhao et al. (2016) : Slab",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P06",
+              "SA0P07",
+              "SA0P08",
+              "SA0P09",
+              "SA0P1",
+              "SA0P12",
+              "SA0P14",
+              "SA0P15",
+              "SA0P16",
+              "SA0P18",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P35",
+              "SA0P4",
+              "SA0P45",
+              "SA0P5",
+              "SA0P6",
+              "SA0P7",
+              "SA0P8",
+              "SA0P9",
+              "SA1P0",
+              "SA1P25",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA3P5",
+              "SA4P0",
+              "SA4P5",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          },
+          {
+            "id": "ZHAO_16_UPPER_MANTLE",
+            "label": "Zhao et al. (2016) : Upper Mantle",
+            "supportedImts": [
+              "PGA",
+              "SA0P01",
+              "SA0P02",
+              "SA0P03",
+              "SA0P04",
+              "SA0P05",
+              "SA0P06",
+              "SA0P07",
+              "SA0P08",
+              "SA0P09",
+              "SA0P1",
+              "SA0P12",
+              "SA0P14",
+              "SA0P15",
+              "SA0P16",
+              "SA0P18",
+              "SA0P2",
+              "SA0P25",
+              "SA0P3",
+              "SA0P35",
+              "SA0P4",
+              "SA0P45",
+              "SA0P5",
+              "SA0P6",
+              "SA0P7",
+              "SA0P8",
+              "SA0P9",
+              "SA1P0",
+              "SA1P25",
+              "SA1P5",
+              "SA2P0",
+              "SA2P5",
+              "SA3P0",
+              "SA3P5",
+              "SA4P0",
+              "SA4P5",
+              "SA5P0"
+            ],
+            "constraints": [
+              {
+                "id": "Mw",
+                "min": 5.0,
+                "max": 9.5
+              },
+              {
+                "id": "rRup",
+                "min": 0.0,
+                "max": 1000.0
+              },
+              {
+                "id": "zTop",
+                "min": 20.0,
+                "max": 700.0
+              },
+              {
+                "id": "vs30",
+                "min": 150.0,
+                "max": 1000.0
+              }
+            ]
+          }
+        ]
+      },
+      "group": {
+        "label": "Ground Motion Model Groups",
+        "info": "Groups of related ground motion models ",
+        "values": [
+          {
+            "id": "CEUS_14_STABLE_CRUST",
+            "label": "2014 Stable Crust (CEUS)",
+            "data": [
+              "ATKINSON_08_PRIME",
+              "AB_06_PRIME",
+              "CAMPBELL_03",
+              "FRANKEL_96",
+              "PEZESHK_11",
+              "SILVA_02",
+              "SOMERVILLE_01",
+              "TP_05",
+              "TORO_97_MW"
+            ]
+          },
+          {
+            "id": "WUS_14_ACTIVE_CRUST",
+            "label": "2014 Active Crust (WUS)",
+            "data": [
+              "ASK_14",
+              "BSSA_14",
+              "CB_14",
+              "CY_14",
+              "IDRISS_14"
+            ]
+          },
+          {
+            "id": "WUS_18_ACTIVE_CRUST",
+            "label": "2018 Active Crust (WUS)",
+            "data": [
+              "ASK_14_BASIN",
+              "BSSA_14_BASIN",
+              "CB_14_BASIN",
+              "CY_14_BASIN"
+            ]
+          },
+          {
+            "id": "WUS_14_INTERFACE",
+            "label": "2014 Subduction Interface (WUS)",
+            "data": [
+              "AB_03_GLOBAL_INTERFACE",
+              "AM_09_INTERFACE",
+              "BCHYDRO_12_INTERFACE",
+              "ZHAO_06_INTERFACE"
+            ]
+          },
+          {
+            "id": "WUS_18_INTERFACE",
+            "label": "2018 Subduction Interface (WUS) beta",
+            "data": [
+              "AM_09_INTERFACE_BASIN",
+              "BCHYDRO_12_INTERFACE_BASIN",
+              "ZHAO_06_INTERFACE_BASIN"
+            ]
+          },
+          {
+            "id": "WUS_14_SLAB",
+            "label": "2014 Subduction Intraslab (WUS)",
+            "data": [
+              "AB_03_CASCADIA_SLAB_LOW_SAT",
+              "AB_03_GLOBAL_SLAB_LOW_SAT",
+              "BCHYDRO_12_SLAB",
+              "ZHAO_06_SLAB"
+            ]
+          },
+          {
+            "id": "WUS_18_SLAB",
+            "label": "2018 Subduction Intraslab (WUS) beta",
+            "data": [
+              "BCHYDRO_12_SLAB_BASIN",
+              "ZHAO_06_SLAB_BASIN"
+            ]
+          },
+          {
+            "id": "NGA_SUBDUCTION",
+            "label": "2018 NGA-Subduction",
+            "data": [
+              "NGA_SUB_USGS_INTERFACE",
+              "NGA_SUB_USGS_INTERFACE_NO_EPI",
+              "NGA_SUB_USGS_SLAB",
+              "NGA_SUB_USGS_SLAB_NO_EPI"
+            ]
+          },
+          {
+            "id": "CEUS_08_STABLE_CRUST",
+            "label": "2008 Stable Crust (CEUS)",
+            "data": [
+              "AB_06_140BAR",
+              "AB_06_200BAR",
+              "CAMPBELL_03",
+              "FRANKEL_96",
+              "SILVA_02",
+              "SOMERVILLE_01",
+              "TP_05",
+              "TORO_97_MW"
+            ]
+          },
+          {
+            "id": "WUS_08_ACTIVE_CRUST",
+            "label": "2008 Active Crust (WUS)",
+            "data": [
+              "BA_08",
+              "CB_08",
+              "CY_08"
+            ]
+          },
+          {
+            "id": "WUS_08_INTERFACE",
+            "label": "2008 Subduction Interface (WUS)",
+            "data": [
+              "AB_03_GLOBAL_INTERFACE",
+              "YOUNGS_97_INTERFACE",
+              "ZHAO_06_INTERFACE"
+            ]
+          },
+          {
+            "id": "WUS_08_SLAB",
+            "label": "2008 Subduction Intraslab (WUS)",
+            "data": [
+              "AB_03_CASCADIA_SLAB",
+              "AB_03_GLOBAL_SLAB",
+              "YOUNGS_97_SLAB"
+            ]
+          },
+          {
+            "id": "AK_07_ACTIVE_CRUST",
+            "label": "2007 Active Crust (AK)",
+            "data": [
+              "AS_97",
+              "BJF_97",
+              "CB_03",
+              "SADIGH_97"
+            ]
+          },
+          {
+            "id": "AK_07_INTERFACE",
+            "label": "2007 Subduction Interface (AK)",
+            "data": [
+              "YOUNGS_97_INTERFACE",
+              "SADIGH_97"
+            ]
+          },
+          {
+            "id": "AK_07_SLAB",
+            "label": "2007 Subduction Intraslab (AK)",
+            "data": [
+              "YOUNGS_97_SLAB",
+              "AB_03_GLOBAL_SLAB"
+            ]
+          },
+          {
+            "id": "HI_98",
+            "label": "1998 Active Volcanic (HI)",
+            "data": [
+              "BJF_97",
+              "CAMPBELL_97",
+              "MT_97",
+              "SADIGH_97",
+              "YOUNGS_97_SLAB"
+            ]
+          },
+          {
+            "id": "HI_20",
+            "label": "2020 Active Volcanic (HI)",
+            "data": [
+              "WONG_15",
+              "ATKINSON_10",
+              "ATKINSON_10_CALDERA",
+              "ASK_14",
+              "BSSA_14",
+              "CB_14",
+              "CY_14",
+              "BCHYDRO_12_SLAB"
+            ]
+          },
+          {
+            "id": "OTHER",
+            "label": "Others",
+            "data": [
+              "GK_15",
+              "ZHAO_16_SHALLOW_CRUST",
+              "ZHAO_16_UPPER_MANTLE",
+              "ZHAO_16_INTERFACE",
+              "ZHAO_16_SLAB",
+              "ATKINSON_15",
+              "AB_03_CASCADIA_INTERFACE",
+              "MCVERRY_00_CRUSTAL",
+              "MCVERRY_00_INTERFACE",
+              "MCVERRY_00_SLAB",
+              "MCVERRY_00_VOLCANIC"
+            ]
+          },
+          {
+            "id": "COMBINED",
+            "label": "Combined Models",
+            "data": [
+              "COMBINED_CEUS_2014",
+              "COMBINED_CEUS_2018",
+              "COMBINED_CEUS_2018_CPA",
+              "COMBINED_WUS_2014_41",
+              "COMBINED_WUS_2014_42",
+              "COMBINED_WUS_2018"
+            ]
+          },
+          {
+            "id": "NGA_EAST",
+            "label": "NGA-East USGS Branches",
+            "data": [
+              "NGA_EAST_USGS",
+              "NGA_EAST_USGS_SEEDS",
+              "NGA_EAST_USGS_CPA",
+              "NGA_EAST_USGS_SEEDS_CPA"
+            ]
+          },
+          {
+            "id": "NGA_EAST_SAMMONS2",
+            "label": "NGA-East USGS Sammons",
+            "data": [
+              "NGA_EAST_USGS_1",
+              "NGA_EAST_USGS_2",
+              "NGA_EAST_USGS_3",
+              "NGA_EAST_USGS_4",
+              "NGA_EAST_USGS_5",
+              "NGA_EAST_USGS_6",
+              "NGA_EAST_USGS_7",
+              "NGA_EAST_USGS_8",
+              "NGA_EAST_USGS_9",
+              "NGA_EAST_USGS_10",
+              "NGA_EAST_USGS_11",
+              "NGA_EAST_USGS_12",
+              "NGA_EAST_USGS_13",
+              "NGA_EAST_USGS_14",
+              "NGA_EAST_USGS_15",
+              "NGA_EAST_USGS_16",
+              "NGA_EAST_USGS_17"
+            ]
+          },
+          {
+            "id": "NGA_EAST_SEEDS",
+            "label": "NGA-East Seeds",
+            "data": [
+              "NGA_EAST_SEED_1CCSP",
+              "NGA_EAST_SEED_1CVSP",
+              "NGA_EAST_SEED_2CCSP",
+              "NGA_EAST_SEED_2CVSP",
+              "NGA_EAST_SEED_B_A04",
+              "NGA_EAST_SEED_B_AB14",
+              "NGA_EAST_SEED_B_AB95",
+              "NGA_EAST_SEED_B_BCA10D",
+              "NGA_EAST_SEED_B_BS11",
+              "NGA_EAST_SEED_B_SGD02",
+              "NGA_EAST_SEED_FRANKEL",
+              "NGA_EAST_SEED_GRAIZER",
+              "NGA_EAST_SEED_GRAIZER16",
+              "NGA_EAST_SEED_GRAIZER17",
+              "NGA_EAST_SEED_HA15",
+              "NGA_EAST_SEED_PEER_EX",
+              "NGA_EAST_SEED_PEER_GP",
+              "NGA_EAST_SEED_PZCT15_M1SS",
+              "NGA_EAST_SEED_PZCT15_M2ES",
+              "NGA_EAST_SEED_SP15",
+              "NGA_EAST_SEED_SP16",
+              "NGA_EAST_SEED_YA15"
+            ]
+          }
+        ]
+      }
+    }
+  }
