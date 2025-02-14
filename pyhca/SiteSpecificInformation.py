@@ -2,8 +2,7 @@
 
 __author__ = 'Kuanshi Zhong'
 
-import json, bisect, os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+import json, bisect
 import numpy as np
 from lib import USGSHazardGMM, SignificantDurationModel, CorrelationModel
 
