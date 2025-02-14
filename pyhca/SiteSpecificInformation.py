@@ -5,7 +5,7 @@ __author__ = 'Kuanshi Zhong'
 import json, bisect, os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 import numpy as np
-import USGSHazardGMM, SignificantDurationModel, CorrelationModel
+from lib import USGSHazardGMM, SignificantDurationModel, CorrelationModel
 
 LOCAL_IM_GMPE = {"DS575": ["Bommer, Stafford & Alarcon (2009)", "Afshari & Stewart (2016)"],
                  "DS595": ["Bommer, Stafford & Alarcon (2009)", "Afshari & Stewart (2016)"],
