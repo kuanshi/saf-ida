@@ -39,7 +39,6 @@
 import argparse, json, os
 from general import *
 from pyngms import NestedGroundMotionSelection as NGMS
-from pyhca import SiteSpecificInformation as SSInfo
 
 class SAF_IDA:
 
@@ -165,109 +164,6 @@ class SAF_IDA:
         self.logfile.write_msg(msg=run_msg)
 
         return 0
-    
-    def _parse_site_config(self, site_config = None):
-
-        # site name
-        self.site_name = site_config.get('SiteName','MySite')
-        # longitude and latitude
-        self.lon = site_config.get('Longitude',None)
-        if self.lon is None:
-            err_msg = 'SAF_IDA._parse_site_config: Longitude not found.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        self.lat = site_config.get('Latitude', None)
-        if self.lat is None:
-            err_msg = 'SAF_IDA._parse_site_config: Latitude not found.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        # site class and vs30
-        self.site_class = site_config.get('SiteClass','B/C')
-        self.vs30 = site_config.get('Vs30',None)
-        # return periods to investigate
-        self.return_periods = site_config.get('ReturnPeriods',None)
-        if self.return_periods is None:
-            err_msg = 'SAF_IDA._parse_site_config: ReturnPeriods not found.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        # intensity measure types
-        self.imt = site_config.get('IntensityMeasureType',None)
-        if self.imt is None:
-            err_msg = 'SAF_IDA._parse_site_config: IntensityMeasureType not found.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        # conditional intensity measure
-        self.cim = site_config.get('ConditionalIntensityMeasure',None)
-        if self.cim is None:
-            self.cim = {
-                'SA': {
-                    'Period': None
-                }
-            }
-        # seismic hazard deaggregation info
-        self.shd_edition = site_config.get('DeaggEdition', 'E2014B')
-        self.shd_region = site_config.get('DeaggRegion','COUS')
-        # intensity measure target type
-        self.im_target_type = site_config.get('IMTargetType','CS')
-        # create the site data object
-        self.site_data = SSInfo.SiteData(self.lon, self.lat, self.site_class, self.return_periods, 
-                                         self.imt, self.cim, self.vs30)
-        # set hazard deaggregation
-        self.site_data.set_hazard_disagg(edition=self.shd_edition, region=self.shd_region)
-        self.site_data.run_hazard_disagg()
-
-        # set intensity measure calculation
-        self.site_data.set_im_calculator()
-        self.site_data.run_im_calculator()
-
-        # prepare site data dictionary
-        self.site_data_dict = {
-            'Data ID': 'Site data',
-            'Number of cases': 1,
-            'Case name': [self.site_name],
-            self.site_name: {
-                'Coord.': [self.lon, self.lat],
-                'Number of intensity levels': len(self.return_periods),
-                'Target type': self.im_target_type,
-                'Intensity Measures': list(self.imt.keys()),
-                'T1 (s)': self.cim.get(list(self.cim.keys())[0]).get('Period'),
-                'Spectral period (s)': self.imt.get('SA').get('Periods'),
-                'Return period (yr)': self.return_periods,
-                'Sa(T1) (g)': [],
-                'PSA (g)': [],
-                'Ds575 (s)': [],
-                'Ds595 (s)': [],
-                'Covariance': []
-            }
-        }
-        IM_Conversion = {
-            'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)'
-        }
-        for i,cur_rp in enumerate(self.return_periods):
-            cur_im_target = self.site_data.im_target[i]
-            im_idx = 0
-            for cur_im in self.imt.keys():
-                cur_im_list = []
-                if cur_im == 'SA':
-                    num_T = len(self.imt.get('SA').get('Periods'))
-                    self.site_data_dict[self.site_name]['PSA (g)'].append(cur_im_target.get('Median')[im_idx:im_idx+num_T])
-                    im_idx = im_idx+num_T
-                    if self.cim['SA'].get('Period') is None:
-                        pass
-                    else:
-                        T1_idx = self.imt.get('SA').get('Periods').index(self.cim['SA'].get('Period'))
-                        self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(cur_im_target.get('Median')[T1_idx])
-                elif cur_im.startswith('DS'):
-                    self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(cur_im_target.get('Median')[im_idx])
-                    im_idx = im_idx+1
-                else:
-                    pass
-            # covariance
-            self.site_data_dict[self.site_name]['Covariance'].append((np.diag(cur_im_target.get('StandardDev')).dot(np.array(cur_im_target.get('Correlation'))).dot(np.diag(cur_im_target.get('StandardDev')))).tolist())
-        
-        # return
-        return 0
 
 
     def create_groundmotionset(self, gms_config = None):
@@ -290,14 +186,6 @@ class SAF_IDA:
             self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
             return 1
         self.logfile.write_msg(msg='SAF_IDA.config_groundmotions: ground motion selection completed.')
-
-    def get_site_specific_hazard(self, site_config = None):
-        # load site configuration
-        if self._parse_site_config(site_config):
-            err_msg = 'SAF_IDA.get_site_specific_hazard: error in parsing site configurations.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configurated.')
 
 
 def run_saf_ida(job_name = 'saf_ida', job_config = ''):
@@ -346,16 +234,6 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
 
         # create ground motions
         saf_ida_job.create_groundmotionset(gms_config=gms_config)
-    
-    if 'SiteSpecificHazard' in job_type:
-        # get the site config.
-        site_config = job_info.get('SiteSpecificHazard', None)
-        if site_config is None:
-            err_msg = 'run_saf_ida: SiteSpecificHazard not found in job configuration.'
-            saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        # create site specific hazard information data
-        saf_ida_job.get_site_specific_hazard(site_config=site_config)
 
 
 if __name__ == '__main__':
