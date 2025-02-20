@@ -209,7 +209,7 @@ class HazardDisagg(USGS_Hazard):
                 magnitude_mean = cur_data[3]['data'][0]['value']
                 distance_mean = cur_data[3]['data'][1]['value']
                 epsilon_mean = cur_data[3]['data'][2]['value']
-                tmp_dict = {self.list_imt[i]: im_value, 'Magnitude': magnitude_mean,
+                tmp_dict = {self.list_imt[i]: im_value, 'IMValue': im_value, 'Magnitude': magnitude_mean,
                             'Distance': distance_mean, 'epsilon': epsilon_mean}
                 disagg_values.update({cur_comp.get('component'): tmp_dict})
             disagg.append(disagg_values)
