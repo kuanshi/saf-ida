@@ -13,7 +13,7 @@ __author__ = 'Kuanshi Zhong'
 
 class SurrogateModel:
 
-    def __init__(self,idadatafile=[],gmdatafile=[]):
+    def __init__(self,idadatafile=[],gmdatafile=[],train_config={}):
         """
         __init__: initialization
         - Input:
@@ -22,6 +22,8 @@ class SurrogateModel:
         """
         self.idadatafile = idadatafile
         self.gmdatafile = gmdatafile
+        # training config
+        self.train_config = train_config
         # raw IDA results
         self.idadata = {}
         # ground motion data
@@ -67,13 +69,36 @@ class SurrogateModel:
             self.nameGM = self.gmdata['Ground motion name']
             # computing SaRatio
             if 'SaRatio' in dict.keys(self.gmdata):
-                self.__compute_saratio()
+                self.gTra, self.gTrb, self.vTra, self.vTrb, self.saratio_pool = self.__compute_saratio()
                 # initializing optimal SaRatio period ranges
                 self.optTra = {}
                 self.optTrb = {}
+                # computing saratio per user-specified period range if any
+                self.saratio_trng_user_col = None
+                self.saratio_trng_user_edp = None
+                col_mp = self.train_config.get('CollapseModelParam')
+                if type(col_mp) is dict:
+                    self.saratio_trng_user_col = col_mp.get('SaRatioPeriodRange',None)
+                    self.gTra_col, self.gTrb_col, self.vTra_col, self.vTrb_col, self.saratio_pool_col = self.__compute_saratio(Tra_user=[self.saratio_trng_user_col[0]],Trb_user=[self.saratio_trng_user_col[1]])
+                else:
+                    self.gTra_col = None
+                    self.gTrb_col = None
+                    self.vTra_col = None
+                    self.vTrb_col = None
+                    self.saratio_pool_col = None
+                edp_mp = self.train_config.get('EDPModelParam')
+                if type(edp_mp) is dict:
+                    self.saratio_trng_user_edp = edp_mp.get('SaRatioPeriodRange',None)
+                    self.gTra_edp, self.gTrb_edp, self.vTra_edp, self.vTrb_edp, self.saratio_pool_edp = self.__compute_saratio(Tra_user=[self.saratio_trng_user_edp[0]],Trb_user=[self.saratio_trng_user_edp[1]])
+                else:
+                    self.gTra_edp = None
+                    self.gTrb_edp = None
+                    self.vTra_edp = None
+                    self.vTrb_edp = None
+                    self.saratio_pool_edp = None
         print("Data loaded.")
 
-    def __compute_saratio(self):
+    def __compute_saratio(self,Tra_user=[],Trb_user=[]):
         """
         __compute_saratio: computing SaRatio
         """
@@ -81,32 +106,39 @@ class SurrogateModel:
         # conditioning on T1
         self.T1 = self.gmdata['Conditional T1 (s)']
         # lower-bound period
-        self.Tra = np.linspace(0.05,0.95,19)
+        if len(Tra_user)==0:
+            Tra = np.linspace(0.05,0.95,19)
+        else:
+            Tra = np.array(Tra_user)
         # self.Tra = np.linspace(0.1, 0.1, 1)
         # upper-bound period
-        self.Trb = np.linspace(1.05, min(3.00, 10 / self.T1), 40)  # limit upperbound to 10s since that is usually the
+        if len(Trb_user)==0:
+            Trb = np.linspace(1.05, min(3.00, 10 / self.T1), 40)  # limit upperbound to 10s since that is usually the
+        else:
+            Trb = np.array(Trb_user)
         # available limit for GMPE
         # self.Trb = np.linspace(min(3.00, 10 / self.T1), min(3.00, 10 / self.T1), 1)
 
         # grid
-        self.gTra,self.gTrb = np.meshgrid(self.Tra,self.Trb)
+        gTra,gTrb = np.meshgrid(Tra,Trb)
         # vector
-        self.vTra = self.gTra.reshape([-1,1])
-        self.vTrb = self.gTrb.reshape([-1,1])
+        vTra = gTra.reshape([-1,1])
+        vTrb = gTrb.reshape([-1,1])
         # PSA
         tmpT = np.array(self.gmdata['Spectral period (s)'])
         tmppsa = np.array(self.gmdata['Response spectra (g)'])
         tmpsaratio = []
         counttag = 0
-        for tra in self.vTra:
+        for tra in vTra:
             tmpTtag = np.intersect1d(np.where(tmpT>=np.round(tra*self.T1/0.01)*0.01),
-                                     np.where(tmpT<=np.round(self.vTrb[counttag]*self.T1/0.01)*0.01))
+                                     np.where(tmpT<=np.round(vTrb[counttag]*self.T1/0.01)*0.01))
             tmpvalue = np.divide(tmppsa[:,tmpT==self.T1].reshape(1,-1),
                       spst.gmean(tmppsa[:,tmpTtag],axis=1).reshape(1,-1))
             tmpsaratio.append(tmpvalue)
             counttag = counttag+1
-        self.saratio_pool = np.array(tmpsaratio)
+        saratio_pool = np.array(tmpsaratio)
         print("SaRatio computed.")
+        return gTra, gTrb, vTra, vTrb, saratio_pool
 
     def get_collapse_im(self,cim='Sa (g)',cedp='SDRmax',climit=0.1):
         """
@@ -218,45 +250,88 @@ class SurrogateModel:
             pass
         # searching the optimal period of SaRatio
         if 'SaRatio' in self.gmdata['Key IM']:
-            tmp_kim = self.gmdata['Key IM']
-            tmperr = []
-            tmpoptlambda = []
-            counttag = 0
-            for tra in self.vTra:
+            # default: optimize the period range
+            if self.saratio_trng_user_col is None:
+                tmp_kim = self.gmdata['Key IM']
+                tmperr = []
+                tmpoptlambda = []
+                counttag = 0
+                for tra in self.vTra:
+                    tmpX = np.log(np.column_stack(
+                            (self.saratio_pool[counttag].reshape((-1,1)),
+                                np.array(self.gmdata[tmp_kim[
+                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    if modeltag=='LLM':
+                        tmpmodel = LocalLinearRegression(
+                                modelname='LLM',data=np.column_stack(
+                                        (tmpX,np.log(self.imcol))),
+                                kerneltype=modelcoef[0],
+                                modelselection=modelcoef[1],
+                                lambdabound=modelcoef[2],ndiv=modelcoef[3])
+                        # using the CV mse as the error
+                        tmperr.append(tmpmodel.mse)
+                        tmpoptlambda.append(tmpmodel.lambda_opt)
+                    else:
+                        tmpmodel = GlobalLinearRegression(
+                                modelname='GLM',data=np.column_stack(
+                                        (tmpX,np.log(self.imcol))),
+                                        modeltype=modeltag,modelpara=modelcoef)
+                        # using -R^2 as error to be minimized
+                        tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
+                    counttag = counttag+1
+                # find min error
+                opttag = np.argmin(tmperr)
+                self.col_model_err = tmperr
+                self.lambda_col_opt = tmpoptlambda
+                # optimal period range
+                self.optTra['Collapse'] = self.vTra[opttag]
+                self.optTrb['Collapse'] = self.vTrb[opttag]
+                # collapse model
                 tmpX = np.log(np.column_stack(
-                        (self.saratio_pool[counttag].reshape((-1,1)),
-                               np.array(self.gmdata[tmp_kim[
-                                       tmp_kim!='SaRatio']]).reshape((-1,1)))))
-                if modeltag=='LLM':
-                    tmpmodel = LocalLinearRegression(
-                            modelname='LLM',data=np.column_stack(
-                                    (tmpX,np.log(self.imcol))),
-                            kerneltype=modelcoef[0],
-                            modelselection=modelcoef[1],
-                            lambdabound=modelcoef[2],ndiv=modelcoef[3])
-                    # using the CV mse as the error
-                    tmperr.append(tmpmodel.mse)
-                    tmpoptlambda.append(tmpmodel.lambda_opt)
-                else:
-                    tmpmodel = GlobalLinearRegression(
-                            modelname='GLM',data=np.column_stack(
-                                    (tmpX,np.log(self.imcol))),
-                                    modeltype=modeltag,modelpara=modelcoef)
-                    # using -R^2 as error to be minimized
-                    tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
-                counttag = counttag+1
-            # find min error
-            opttag = np.argmin(tmperr)
-            self.col_model_err = tmperr
-            self.lambda_col_opt = tmpoptlambda
-            # optimal period range
-            self.optTra['Collapse'] = self.vTra[opttag]
-            self.optTrb['Collapse'] = self.vTrb[opttag]
-            # collapse model
-            tmpX = np.log(np.column_stack(
-                    (self.saratio_pool[opttag].reshape((-1,1)),
-                     np.array(self.gmdata[tmp_kim[
-                             tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                        (self.saratio_pool[opttag].reshape((-1,1)),
+                        np.array(self.gmdata[tmp_kim[
+                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
+            # if user-specified period range is given
+            else:
+                tmp_kim = self.gmdata['Key IM']
+                tmperr = []
+                tmpoptlambda = []
+                counttag = 0
+                for tra in self.vTra_col:
+                    tmpX = np.log(np.column_stack(
+                            (self.saratio_pool_col[counttag].reshape((-1,1)),
+                                np.array(self.gmdata[tmp_kim[
+                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    if modeltag=='LLM':
+                        tmpmodel = LocalLinearRegression(
+                                modelname='LLM',data=np.column_stack(
+                                        (tmpX,np.log(self.imcol))),
+                                kerneltype=modelcoef[0],
+                                modelselection=modelcoef[1],
+                                lambdabound=modelcoef[2],ndiv=modelcoef[3])
+                        # using the CV mse as the error
+                        tmperr.append(tmpmodel.mse)
+                        tmpoptlambda.append(tmpmodel.lambda_opt)
+                    else:
+                        tmpmodel = GlobalLinearRegression(
+                                modelname='GLM',data=np.column_stack(
+                                        (tmpX,np.log(self.imcol))),
+                                        modeltype=modeltag,modelpara=modelcoef)
+                        # using -R^2 as error to be minimized
+                        tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
+                    counttag = counttag+1
+                # find min error
+                opttag = np.argmin(tmperr)
+                self.col_model_err = tmperr
+                self.lambda_col_opt = tmpoptlambda
+                # optimal period range
+                self.optTra['Collapse'] = self.vTra_col[opttag]
+                self.optTrb['Collapse'] = self.vTrb_col[opttag]
+                # collapse model
+                tmpX = np.log(np.column_stack(
+                        (self.saratio_pool_col[opttag].reshape((-1,1)),
+                        np.array(self.gmdata[tmp_kim[
+                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
             if modeltag=='LLM':
                 self.col_model = LocalLinearRegression(
                         modelname='LLM',data=np.column_stack(
@@ -327,33 +402,63 @@ class SurrogateModel:
                     tmperr = []
                     tmpoptlambda = []
                     counttag = 0
-                    # loop over all period ranges
-                    for tra in self.vTra:
+                    # default: optimize the period range
+                    if self.saratio_trng_user_edp is None:
+                        # loop over all period ranges
+                        for tra in self.vTra:
+                            tmpX = np.log(np.column_stack(
+                                    (self.saratio_pool[counttag].reshape((-1,1)),
+                                    np.array(self.gmdata[tmp_kim[
+                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            if modeltag=='LLM':
+                                pass
+                            else:
+                                tmpmodel = GlobalLinearRegression(
+                                        modelname='GLM',data=np.column_stack((tmpX,tmpy)),
+                                                modeltype=modeltag,modelpara=modelcoef)
+                                # using -R^2 as error to be minimized
+                                tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
+                            counttag = counttag+1
+                        # find min error
+                        opttag = np.argmin(tmperr)
+                        self.edp_model_err = tmperr
+                        self.lambda_epd_opt = tmpoptlambda
+                        # optimal period range
+                        self.edp_model[tagedp]['optTra'].append(self.vTra[opttag])
+                        self.edp_model[tagedp]['optTrb'].append(self.vTrb[opttag])
+                        # EDP model
                         tmpX = np.log(np.column_stack(
-                                (self.saratio_pool[counttag].reshape((-1,1)),
-                                 np.array(self.gmdata[tmp_kim[
-                                         tmp_kim!='SaRatio']]).reshape((-1,1)))))
-                        if modeltag=='LLM':
-                            pass
-                        else:
-                            tmpmodel = GlobalLinearRegression(
-                                    modelname='GLM',data=np.column_stack((tmpX,tmpy)),
-                                            modeltype=modeltag,modelpara=modelcoef)
-                            # using -R^2 as error to be minimized
-                            tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
-                        counttag = counttag+1
-                    # find min error
-                    opttag = np.argmin(tmperr)
-                    self.edp_model_err = tmperr
-                    self.lambda_epd_opt = tmpoptlambda
-                    # optimal period range
-                    self.edp_model[tagedp]['optTra'].append(self.vTra[opttag])
-                    self.edp_model[tagedp]['optTrb'].append(self.vTrb[opttag])
-                    # EDP model
-                    tmpX = np.log(np.column_stack(
-                            (self.saratio_pool[opttag].reshape((-1,1)),
-                             np.array(self.gmdata[tmp_kim[
-                                     tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                                (self.saratio_pool[opttag].reshape((-1,1)),
+                                np.array(self.gmdata[tmp_kim[
+                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    # if user-specified period range is given
+                    else:
+                        for tra in self.vTra_edp:
+                            tmpX = np.log(np.column_stack(
+                                    (self.saratio_pool_edp[counttag].reshape((-1,1)),
+                                    np.array(self.gmdata[tmp_kim[
+                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            if modeltag=='LLM':
+                                pass
+                            else:
+                                tmpmodel = GlobalLinearRegression(
+                                        modelname='GLM',data=np.column_stack((tmpX,tmpy)),
+                                                modeltype=modeltag,modelpara=modelcoef)
+                                # using -R^2 as error to be minimized
+                                tmperr.append(-tmpmodel.modeleval(tmpX,rflag=2))
+                            counttag = counttag+1
+                        # find min error
+                        opttag = np.argmin(tmperr)
+                        self.edp_model_err = tmperr
+                        self.lambda_epd_opt = tmpoptlambda
+                        # optimal period range
+                        self.edp_model[tagedp]['optTra'].append(self.vTra_edp[opttag])
+                        self.edp_model[tagedp]['optTrb'].append(self.vTrb_edp[opttag])
+                        # EDP model
+                        tmpX = np.log(np.column_stack(
+                                (self.saratio_pool_edp[opttag].reshape((-1,1)),
+                                np.array(self.gmdata[tmp_kim[
+                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
                     if modeltag=='LLM':
                         pass
                     else:
