@@ -39,6 +39,8 @@ class SiteData:
             else:
                 print('SiteData.__init__: please include conditional IM {} in intensity measure list'.format(list(cim.keys())[0]))
                 return
+            # conditional period index
+            self.cond_im_idx = imt['SA']['Periods'].index(Tcond)
         elif 'PGA' in list(cim.keys())[0]:
             self.cond_im = 'PGA'
             if 'PGA' not in imt:
@@ -53,7 +55,7 @@ class SiteData:
         else:
             self.vs30 = vs30
         # set gmm
-        self.set_gmm(imt)
+        self.set_gmm(imt)        
 
     def set_hazard_disagg(self, edition='E2014B', region='COUS'):
         # set up hazard disaggregation
@@ -77,9 +79,10 @@ class SiteData:
                 return
             self.gmm.update({cur_im: tmp})
 
-    def set_im_calculator(self):
+    def set_im_calculator(self, tgt_type=None):
         self.im_calculator = []
         self.im = []
+        self.tgt_type = tgt_type
         for cur_imt, cur_prop in self.imt.items():
             if cur_imt.startswith('PSA') or cur_imt.startswith('SA'):
                 for curT in cur_prop.get('Periods'):
@@ -117,6 +120,7 @@ class SiteData:
             # current hazard disagg
             cur_hazdisagg = self.disagg_info[i].hazarddisagg
             # current magnitude/distance
+            cur_sa_cond = cur_hazdisagg.get('Total').get('IMValue')
             cur_mag = cur_hazdisagg.get('Total').get('Magnitude')
             cur_dist = cur_hazdisagg.get('Total').get('Distance')
             # get current im_calculator
@@ -147,6 +151,10 @@ class SiteData:
                     # collect
                     im_mean = im_mean+theta
                     im_std = im_std+beta_tot
+                # kz - debug
+                #print(cur_hazdisagg)
+                #print('cur_imt=',cur_imt)
+                #print('cur_sa_cond=',cur_sa_cond)
 
             # correlation coefficient
             im_corr = np.zeros((len(self.im),len(self.im)))
@@ -157,9 +165,47 @@ class SiteData:
                     im_corr[j,k] = CorrelationModel.baker_bradley_correlation_2017(im1=im1, im2=im2)
                     im_corr[k,j] = im_corr[j,k]
 
+            if self.tgt_type in ['CS','CSD']:
+                cms, cov_matrix_cond = self.conditional_spectrum(cur_sa_cond,im_mean,im_std,im_corr.tolist())
+            else:
+                cms = []
+                cov_matrix_cond = [[]]
+
             # collect
             self.im_target.append({'ReturnPeriod': cur_rp, 'Median': np.exp(im_mean).tolist(), 
-                                   'StandardDev': im_std, 'Correlation': im_corr.tolist()})
+                                   'StandardDev': im_std, 'Correlation': im_corr.tolist(),
+                                   'ConditionalMean': np.exp(cms).tolist(), 'ConditionalCov': cov_matrix_cond.tolist()})
+            
+    def conditional_spectrum(self,sa_cond,im_mean,im_std,im_corr):
+        # conditional mean spectrum
+        eps_bar = (np.log(sa_cond)-im_mean[self.cond_im_idx])/im_std[self.cond_im_idx]
+        #print('back-calculated epsilon = {}'.format(eps_bar))
+        cms = np.array(im_mean)+np.multiply(np.array(im_std),np.array(im_corr[self.cond_im_idx]))*eps_bar
+        # covariance matrix
+        cov_matrix = np.diag(im_std).dot(np.array(im_corr).dot(np.diag(im_std)))
+        #print(np.shape(cov_matrix))
+        # partition matrix to submatrices
+        cov_11 = cov_matrix[self.cond_im_idx:self.cond_im_idx+1,self.cond_im_idx:self.cond_im_idx+1]
+        cov_12 = np.delete(cov_matrix,self.cond_im_idx,axis=1)[self.cond_im_idx:self.cond_im_idx+1,:]
+        cov_21 = np.delete(cov_matrix,self.cond_im_idx,axis=0)[:,self.cond_im_idx:self.cond_im_idx+1]
+        cov_22 = np.delete(np.delete(cov_matrix,self.cond_im_idx,axis=0),self.cond_im_idx,axis=1)
+        # conditional matrix
+        cov_matrix_cond = cov_22 - np.dot(cov_21, np.linalg.inv(cov_11)).dot(cov_12)
+        #print(np.shape(cov_matrix_cond))
+        # insert the conditional row and column
+        cov_matrix_cond = np.insert(cov_matrix_cond,self.cond_im_idx,0,axis=0)
+        cov_matrix_cond = np.insert(cov_matrix_cond,self.cond_im_idx,0,axis=1)
+        #print(cov_matrix_cond[self.cond_im_idx,:])
+        #print(cov_matrix_cond[:,self.cond_im_idx])
+        if not np.allclose(cov_matrix_cond, cov_matrix_cond.T):
+            print('cov_matrix_cond is not symmetric...')
+        eigenvalues = np.linalg.eigvalsh(cov_matrix_cond)
+        if np.all(eigenvalues > -1e-8):
+            pass
+        else:
+            print('cov_matrix_cond is not positive semidefinite...')
+        # return
+        return cms, cov_matrix_cond
 
 
 class SiteInfo:
