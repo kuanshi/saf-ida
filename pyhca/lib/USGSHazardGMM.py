@@ -238,16 +238,28 @@ class HazardDisagg(USGS_Hazard):
                     y = np.exp(f(np.log(self.period)))
                 tmp.update({self.imt: y.tolist()})    
                 for cur_item in item_list:
-                    # Magnitude
-                    y1 = disagg[0].get(cur_comp).get(cur_item)
-                    y2 = disagg[1].get(cur_comp).get(cur_item)
-                    if interp_scale == 'linear':
-                        f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                        y = f(self.period)
+                    if cur_item in ['Magnitude', 'Distance', 'epsilon']:
+                        # for magnitude, distance, epsilon, semi-log period
+                        y1 = disagg[0].get(cur_comp).get(cur_item)
+                        y2 = disagg[1].get(cur_comp).get(cur_item)
+                        if interp_scale == 'linear':
+                            f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                            y = f(self.period)
+                        else:
+                            f = interpolate.interp1d(np.log(self.list_t), np.array([y1,y2]))
+                            y = f(np.log(self.period))
+                        tmp.update({cur_item: y.tolist()})
                     else:
-                        f = interpolate.interp1d(np.log(self.list_t), np.array([y1,y2]))
-                        y = f(np.log(self.period))
-                    tmp.update({cur_item: y.tolist()})
+                        # for IMValue
+                        y1 = disagg[0].get(cur_comp).get(cur_item)
+                        y2 = disagg[1].get(cur_comp).get(cur_item)
+                        if interp_scale == 'linear':
+                            f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                            y = f(self.period)
+                        else:
+                            f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
+                            y = np.exp(f(np.log(self.period)))
+                        tmp.update({cur_item: y.tolist()})
                 disagg_values.update({cur_comp: tmp})
             self.hazarddisagg = disagg_values
         # return
