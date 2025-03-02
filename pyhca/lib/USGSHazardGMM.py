@@ -184,7 +184,7 @@ class HazardDisagg(USGS_Hazard):
         # return
         return 0
 
-    def fetch_data(self):
+    def fetch_data(self,interp_scale='log'):
         """
         fetch data via prepared url
         """
@@ -228,15 +228,25 @@ class HazardDisagg(USGS_Hazard):
                 # IM value
                 y1 = disagg[0].get(cur_comp).get(self.list_imt[0])
                 y2 = disagg[1].get(cur_comp).get(self.list_imt[1])
-                f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                y = f(self.period)
+                print('y1 = ',y1)
+                print('y2 = ',y2)
+                if interp_scale == 'linear':
+                    f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                    y = f(self.period)
+                else:
+                    f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
+                    y = np.exp(f(np.log(self.period)))
                 tmp.update({self.imt: y.tolist()})    
                 for cur_item in item_list:
                     # Magnitude
                     y1 = disagg[0].get(cur_comp).get(cur_item)
                     y2 = disagg[1].get(cur_comp).get(cur_item)
-                    f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                    y = f(self.period)
+                    if interp_scale == 'linear':
+                        f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                        y = f(self.period)
+                    else:
+                        f = interpolate.interp1d(np.log(self.list_t), np.array([y1,y2]))
+                        y = f(np.log(self.period))
                     tmp.update({cur_item: y.tolist()})
                 disagg_values.update({cur_comp: tmp})
             self.hazarddisagg = disagg_values
