@@ -242,6 +242,8 @@ class HazardDisagg(USGS_Hazard):
                         # for magnitude, distance, epsilon, semi-log period
                         y1 = disagg[0].get(cur_comp).get(cur_item)
                         y2 = disagg[1].get(cur_comp).get(cur_item)
+                        print('y1 = ',y1)
+                        print('y2 = ',y2)
                         if interp_scale == 'linear':
                             f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
                             y = f(self.period)

@@ -48,6 +48,7 @@ class SAF_IDA:
     def __init__(self, dir_info = dict(), job_name = 'saf_ida'):
 
         # initiate a log file
+        self.input_dir = dir_info.get('Input', './')
         self.output_dir = dir_info.get('Output', './')
         self.logfile_name = job_name+'.log'
         self.logfile = Logfile(logfile_dir=self.output_dir, logfile_name=self.logfile_name)
@@ -290,7 +291,109 @@ class SAF_IDA:
         
         # return
         return 0
+    
+    def _parse_user_hazard_config(self, tgt_config = None):
 
+        # site name
+        self.site_name = tgt_config.get('TargetName','MySite')
+        # longitude and latitude
+        self.lon = tgt_config.get('Longitude',None)
+        self.lat = tgt_config.get('Latitude', None)
+        # site class and vs30
+        self.site_class = tgt_config.get('SiteClass',None)
+        self.vs30 = tgt_config.get('Vs30',None)
+        # return periods to investigate
+        self.return_periods = tgt_config.get('ReturnPeriods',None)
+        if self.return_periods is None:
+            err_msg = 'SAF_IDA._parse_user_hazard_config: ReturnPeriods not found.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        # intensity measure target type
+        self.im_target_type = tgt_config.get('IMTargetType','CS')
+        # input config
+        self.user_hazard_config = tgt_config.get('InputConfig',None)
+        if self.user_hazard_config is None:
+            err_msg = 'SAF_IDA._parse_user_hazard_config: InputConfig not found.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        self.user_hazard_input_type = self.user_hazard_config.get('Type',None)
+        if self.user_hazard_input_type is None:
+            err_msg = 'SAF_IDA._parse_user_hazard_config: Type not found in InputConfig.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        if self.user_hazard_input_type == 'IntensityMeasureCSV':
+            self.user_hazard_input_file = self.user_hazard_config.get('Filename',[])
+            if len(self.user_hazard_input_file) != len(self.return_periods):
+                err_msg = 'SAF_IDA._parse_user_hazard_config: Input file number does not match the return period number.'
+                self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            csv_headers = self.user_hazard_config.get('Header',[])
+            if len(csv_headers) == 0:
+                err_msg = 'SAF_IDA._parse_user_hazard_config: Header not found in InputConfig.'
+                self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            self.imt = dict()
+            for cur_header in csv_headers:
+                self.imt.update({
+                    cur_header.get('IM'): {
+                        "Periods": cur_header.get('Periods')
+                    }
+                })
+        # conditional intensity measure
+        self.cim = tgt_config.get('ConditionalIntensityMeasure',None)
+        if self.cim is None:
+            self.cim = {
+                'SA': {
+                    'Period': None
+                }
+            }
+        # prepare site data dictionary
+        self.site_data_dict = {
+            'Data ID': 'Site data',
+            'Number of cases': 1,
+            'Case name': [self.site_name],
+            self.site_name: {
+                'Coord.': [self.lon, self.lat],
+                'Number of intensity levels': len(self.return_periods),
+                'Target type': self.im_target_type,
+                'Intensity Measures': list(self.imt.keys()),
+                'T1 (s)': self.cim.get(list(self.cim.keys())[0]).get('Period'),
+                'Spectral period (s)': self.imt.get('SA').get('Periods'),
+                'Return period (yr)': self.return_periods,
+                'Sa(T1) (g)': [],
+                'PSA (g)': [],
+                'Ds575 (s)': [],
+                'Ds595 (s)': [],
+                'Covariance': []
+            }
+        }
+        IM_Conversion = {
+            'DS575': 'Ds575 (s)',
+            'DS595': 'Ds595 (s)'
+        }
+        for i,cur_rp in enumerate(self.return_periods):
+            cur_inputfile = os.path.join(self.input_dir,self.user_hazard_input_file[i])
+            df_im_realizations = pd.read_csv(cur_inputfile,header=0)
+            im_idx = 0
+            for cur_im in self.imt.keys():
+                if cur_im == 'SA':
+                    num_T = len(self.imt.get('SA').get('Periods'))
+                    self.site_data_dict[self.site_name]['PSA (g)'].append(list(np.exp(np.log(df_im_realizations.iloc[:,im_idx:im_idx+num_T]).mean(axis=0).tolist())))
+                    im_idx = im_idx+num_T
+                    if self.cim['SA'].get('Period') is None:
+                        pass
+                    else:
+                        T1_idx = self.imt.get('SA').get('Periods').index(self.cim['SA'].get('Period'))
+                        self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(np.exp(np.log(df_im_realizations.iloc[:,T1_idx]).mean()))
+                elif cur_im.startswith('DS'):
+                    self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(np.exp(np.log(df_im_realizations.iloc[:,im_idx]).mean()))
+                    im_idx = im_idx+1
+                else:
+                    pass
+            # covariance
+            self.site_data_dict[self.site_name]['Covariance'].append(np.cov(np.log(df_im_realizations).T).tolist())
+        # return
+        return 0
 
     def create_groundmotionset(self, gms_config = None):
         """
@@ -322,7 +425,18 @@ class SAF_IDA:
             err_msg = 'SAF_IDA.get_site_specific_hazard: error in parsing site configurations.'
             self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
             return 1
-        self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configurated.')
+        self.logfile.write_msg(msg='SAF_IDA.get_site_specific_hazard: site configured.')
+
+        # return
+        return 0
+    
+    def get_user_defined_hazard(self, tgt_config = None):
+        # load site configuration
+        if self._parse_user_hazard_config(tgt_config):
+            err_msg = 'SAF_IDA.get_user_defined_hazard: error in parsing user-defined configurations.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        self.logfile.write_msg(msg='SAF_IDA.get_user_defined_hazard: user-defined hazard target configured.')
 
         # return
         return 0
@@ -462,14 +576,25 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
         saf_ida_job.create_groundmotionset(gms_config=gms_config)
     
     if 'SiteSpecificHazard' in job_type:
-        # get the site config.
-        site_config = job_info.get('SiteSpecificHazard', None)
-        if site_config is None:
-            err_msg = 'run_saf_ida: SiteSpecificHazard not found in job configuration.'
-            saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
-        # create site specific hazard information data
-        saf_ida_job.get_site_specific_hazard(site_config=site_config)
+        # KZ: 03/02/25 - extending this to user-defined target
+        tgt_type = job_info.get('Prediction',dict()).get('TargetType','SiteSpecific')
+        if tgt_type == 'SiteSpecific':
+            # get the site config.
+            site_config = job_info.get('SiteSpecificHazard', None)
+            if site_config is None:
+                err_msg = 'run_saf_ida: SiteSpecificHazard not found in job configuration.'
+                saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            # create site specific hazard information data
+            saf_ida_job.get_site_specific_hazard(site_config=site_config)
+        elif tgt_type == 'UserDefined':
+            tgt_config = job_info.get('UserDefinedHazard',None)
+            if tgt_config is None:
+                err_msg = 'run_saf_ida: UserDefinedHazard not found in job configuration.'
+                saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            # create user-defined hazard information data
+            saf_ida_job.get_user_defined_hazard(tgt_config=tgt_config)
 
     if 'Training' in job_type:
         # get training config
