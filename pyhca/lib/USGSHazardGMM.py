@@ -224,44 +224,45 @@ class HazardDisagg(USGS_Hazard):
             print(item_list)
             item_list.pop(item_list.index(self.list_imt[0]))
             for cur_comp in comp_list:
-                tmp = dict()
-                # IM value
-                y1 = disagg[0].get(cur_comp).get(self.list_imt[0])
-                y2 = disagg[1].get(cur_comp).get(self.list_imt[1])
-                print('y1 = ',y1)
-                print('y2 = ',y2)
-                if interp_scale == 'linear':
-                    f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                    y = f(self.period)
-                else:
-                    f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
-                    y = np.exp(f(np.log(self.period)))
-                tmp.update({self.imt: y.tolist()})    
-                for cur_item in item_list:
-                    if cur_item in ['Magnitude', 'Distance', 'epsilon']:
-                        # for magnitude, distance, epsilon, semi-log period
-                        y1 = disagg[0].get(cur_comp).get(cur_item)
-                        y2 = disagg[1].get(cur_comp).get(cur_item)
-                        print('y1 = ',y1)
-                        print('y2 = ',y2)
-                        if interp_scale == 'linear':
-                            f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                            y = f(self.period)
-                        else:
-                            f = interpolate.interp1d(np.log(self.list_t), np.array([y1,y2]))
-                            y = f(np.log(self.period))
-                        tmp.update({cur_item: y.tolist()})
+                if cur_comp in list(disagg[1].keys()):
+                    tmp = dict()
+                    # IM value
+                    y1 = disagg[0].get(cur_comp).get(self.list_imt[0])
+                    y2 = disagg[1].get(cur_comp).get(self.list_imt[1])
+                    print('y1 = ',y1)
+                    print('y2 = ',y2)
+                    if interp_scale == 'linear':
+                        f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                        y = f(self.period)
                     else:
-                        # for IMValue
-                        y1 = disagg[0].get(cur_comp).get(cur_item)
-                        y2 = disagg[1].get(cur_comp).get(cur_item)
-                        if interp_scale == 'linear':
-                            f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
-                            y = f(self.period)
+                        f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
+                        y = np.exp(f(np.log(self.period)))
+                    tmp.update({self.imt: y.tolist()})    
+                    for cur_item in item_list:
+                        if cur_item in ['Magnitude', 'Distance', 'epsilon']:
+                            # for magnitude, distance, epsilon, semi-log period
+                            y1 = disagg[0].get(cur_comp).get(cur_item)
+                            y2 = disagg[1].get(cur_comp).get(cur_item)
+                            print('y1 = ',y1)
+                            print('y2 = ',y2)
+                            if interp_scale == 'linear':
+                                f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                                y = f(self.period)
+                            else:
+                                f = interpolate.interp1d(np.log(self.list_t), np.array([y1,y2]))
+                                y = f(np.log(self.period))
+                            tmp.update({cur_item: y.tolist()})
                         else:
-                            f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
-                            y = np.exp(f(np.log(self.period)))
-                        tmp.update({cur_item: y.tolist()})
+                            # for IMValue
+                            y1 = disagg[0].get(cur_comp).get(cur_item)
+                            y2 = disagg[1].get(cur_comp).get(cur_item)
+                            if interp_scale == 'linear':
+                                f = interpolate.interp1d(np.array(self.list_t), np.array([y1,y2]))
+                                y = f(self.period)
+                            else:
+                                f = interpolate.interp1d(np.log(self.list_t), np.log([y1,y2]))
+                                y = np.exp(f(np.log(self.period)))
+                            tmp.update({cur_item: y.tolist()})
                 disagg_values.update({cur_comp: tmp})
             self.hazarddisagg = disagg_values
         # return
