@@ -24,6 +24,8 @@ class SurrogateModel:
         self.gmdatafile = gmdatafile
         # training config
         self.train_config = train_config
+        # IM predictors
+        self.im_predictor = self.train_config.get('IMPredictor',['SaRatio','DS575'])
         # raw IDA results
         self.idadata = {}
         # ground motion data
@@ -68,7 +70,8 @@ class SurrogateModel:
             self.idadata = idadata_sorted
             self.nameGM = self.gmdata['Ground motion name']
             # computing SaRatio
-            if 'SaRatio' in dict.keys(self.gmdata):
+            #if 'SaRatio' in dict.keys(self.gmdata):
+            if 'SaRatio' in self.im_predictor:
                 self.gTra, self.gTrb, self.vTra, self.vTrb, self.saratio_pool = self.__compute_saratio()
                 # initializing optimal SaRatio period ranges
                 self.optTra = {}
@@ -249,10 +252,12 @@ class SurrogateModel:
         else:
             pass
         # searching the optimal period of SaRatio
-        if 'SaRatio' in self.gmdata['Key IM']:
+        #if 'SaRatio' in self.gmdata['Key IM']:
+        if 'SaRatio' in self.im_predictor:
             # default: optimize the period range
             if self.saratio_trng_user_col is None:
-                tmp_kim = self.gmdata['Key IM']
+                #tmp_kim = self.gmdata['Key IM']
+                tmp_kim = self.im_predictor
                 tmperr = []
                 tmpoptlambda = []
                 counttag = 0
@@ -293,7 +298,8 @@ class SurrogateModel:
                                 tmp_kim!='SaRatio']]).reshape((-1,1)))))
             # if user-specified period range is given
             else:
-                tmp_kim = self.gmdata['Key IM']
+                #tmp_kim = self.gmdata['Key IM']
+                tmp_kim = self.im_predictor
                 tmperr = []
                 tmpoptlambda = []
                 counttag = 0
@@ -345,7 +351,8 @@ class SurrogateModel:
                                     (tmpX,np.log(self.imcol))),
                         modeltype=modeltag,modelpara=modelcoef)
         else:
-            tmp_kim = self.gmdata['Key IM']
+            #tmp_kim = self.gmdata['Key IM']
+            tmp_kim = self.im_predictor
             if modeltag=='LLM':
                 self.col_model = LocalLinearRegression(
                         modelname='LLM',data=np.column_stack(
@@ -383,8 +390,10 @@ class SurrogateModel:
         else:
             pass
         # searching the optimal period of SaRatio
-        if 'SaRatio' in self.gmdata['Key IM']:
-            tmp_kim = self.gmdata['Key IM']
+        #if 'SaRatio' in self.gmdata['Key IM']:
+        if 'SaRatio' in self.im_predictor:
+            #tmp_kim = self.gmdata['Key IM']
+            tmp_kim = self.im_predictor
 
             # loop over all EDP variables
             for tagedp in self.nameEDP:
@@ -466,7 +475,8 @@ class SurrogateModel:
                                 modelname='GLM',data=np.column_stack((tmpX,tmpy)),
                                         modeltype=modeltag,modelpara=modelcoef))
         else:
-            tmp_kim = self.gmdata['Key IM']
+            #tmp_kim = self.gmdata['Key IM']
+            tmp_kim = self.im_predictor
             if modeltag=='LLM':
                 pass
             else:
@@ -503,9 +513,11 @@ class SurrogateModel:
                 curax.plot(x,y,linestyle='None',marker='o', \
                            markerfacecolor='k',markeredgecolor='k')
                 curax.grid()
-                plt.xlabel(self.gmdata['Key IM'][i])
+                #plt.xlabel(self.gmdata['Key IM'][i])
+                plt.xlabel(self.im_predictor[i])
                 plt.ylabel('Collapse Sa (g)')
-                plt.title('Collapse Sa vs. '+self.gmdata['Key IM'][i])
+                #plt.title('Collapse Sa vs. '+self.gmdata['Key IM'][i])
+                plt.title('Collapse Sa vs. '+self.im_predictor[i])
                 plt.show()
         else:
             print('No collapse models were found.')
