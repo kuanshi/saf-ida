@@ -394,6 +394,148 @@ class SAF_IDA:
             self.site_data_dict[self.site_name]['Covariance'].append(np.cov(np.log(df_im_realizations).T).tolist())
         # return
         return 0
+    
+    def _parse_user_im_config(self, tgt_config = None):
+
+        # site name
+        self.site_name = tgt_config.get('TargetName','MySite')
+        # longitude and latitude
+        self.lon = tgt_config.get('Longitude',None)
+        self.lat = tgt_config.get('Latitude', None)
+        # site class and vs30
+        self.site_class = tgt_config.get('SiteClass',None)
+        self.vs30 = tgt_config.get('Vs30',None)
+        # return periods to investigate
+        self.return_periods = tgt_config.get('ReturnPeriods',None)
+        if self.return_periods is None:
+            num_return_period = 1
+        else:
+            num_return_period = len(self.return_periods)
+        # intensity measure target type
+        self.im_target_type = tgt_config.get('IMTargetType',None)
+        if self.im_target_type is None:
+            err_msg = 'SAF_IDA._parse_user_im_config: IMTargetType not found.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        # input config
+        self.user_im_config = tgt_config.get('InputConfig',None)
+        if self.user_im_config is None:
+            err_msg = 'SAF_IDA._parse_user_im_config: InputConfig not found.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        self.user_im_tgt_type = self.user_im_config.get('Type',None)
+        if self.user_im_tgt_type is None:
+            err_msg = 'SAF_IDA._parse_user_im_config: Type not found in InputConfig.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        if self.user_im_tgt_type == 'IntensityMeasureMeanLog':
+            self.user_im_tgt = self.user_im_config.get('MeanLog',[])
+            if len(self.user_im_tgt) == 0:
+                err_msg = 'SAF_IDA._parse_user_im_config: Input MeanLog number is zero.'
+                self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            self.imt = dict()
+            for cur_imt in self.user_im_tgt:
+                if len(cur_imt.get('Value')) != num_return_period:
+                    err_msg = 'SAF_IDA._parse_user_im_config: Input MeanLog size does not match return period number.'
+                    self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                    return 1
+                self.imt.update({
+                    cur_imt.get('IM'): {
+                        "Value": cur_imt.get('Value')
+                    }
+                })
+            self.user_im_std = [None for i in range(num_return_period)]
+            self.user_im_corr = [None for i in range(num_return_period)]
+        if self.user_im_tgt_type == 'IntensityMeasureDist':
+            self.user_im_tgt = self.user_im_config.get('MeanLog',[])
+            if len(self.user_im_tgt) == 0:
+                err_msg = 'SAF_IDA._parse_user_im_config: Input MeanLog number is zero.'
+                self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            self.imt = dict()
+            for cur_imt in self.user_im_tgt:
+                if len(cur_imt.get('Value')) != num_return_period:
+                    err_msg = 'SAF_IDA._parse_user_im_config: Input MeanLog size does not match return period number.'
+                    self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                    return 1
+                self.imt.update({
+                    cur_imt.get('IM'): {
+                        "Value": cur_imt.get('Value')
+                    }
+                })
+            self.user_im_std = self.user_im_config.get('StdLog',[])
+            if len(self.user_im_std) != num_return_period:
+                err_msg = 'SAF_IDA._parse_user_im_config: Input StdLog number does not match return period number.'
+                self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            self.user_im_corr = self.user_im_config.get('CorrelationCoeffMatrix',[])
+            if len(self.user_im_corr) != num_return_period:
+                err_msg = 'SAF_IDA._parse_user_im_config: Input CorrelationCoeffMatrix number does not match return period number.'
+                self.logfile.write_msg(msg=err_msg, msg_type='WARNING')
+                self.user_im_corr = [None for i in range(num_return_period)]
+        # conditional intensity measure
+        self.cim = tgt_config.get('ConditionalIntensityMeasure',None)
+        if self.cim is None:
+            self.cim = {
+                'SA': {
+                    'Period': None
+                }
+            }
+        # prepare site data dictionary
+        self.site_data_dict = {
+            'Data ID': 'Site data',
+            'Number of cases': 1,
+            'Case name': [self.site_name],
+            self.site_name: {
+                'Coord.': [self.lon, self.lat],
+                'Number of intensity levels': num_return_period,
+                'Target type': self.im_target_type,
+                'Intensity Measures': list(self.imt.keys()),
+                'T1 (s)': self.cim.get(list(self.cim.keys())[0]).get('Period'),
+                'Return period (yr)': self.return_periods,
+                'Sa(T1) (g)': [],
+                'Ds575 (s)': [],
+                'Ds595 (s)': [],
+                'Covariance': []
+            }
+        }
+        IM_Conversion = {
+            'DS575': 'Ds575 (s)',
+            'DS595': 'Ds595 (s)'
+        }
+        for j,cur_im in enumerate(self.imt.keys()):
+            if cur_im == 'SA' or cur_im.startswith('DS'):
+                pass
+            else:
+                self.site_data_dict[self.site_name][cur_im] = []
+        for i in range(num_return_period):
+            im_idx = 0
+            num_secondary_im = len(self.imt.keys())
+            for j,cur_im in enumerate(self.imt.keys()):
+                if cur_im == 'SA':
+                    num_secondary_im = num_secondary_im-1
+                    if self.cim['SA'].get('Period') is None:
+                        pass
+                    else:
+                        self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(np.exp(self.user_im_tgt[j].get('Value')[i]))
+                elif cur_im.startswith('DS'):
+                    self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(np.exp(self.user_im_tgt[j].get('Value')[i]))
+                    im_idx = im_idx+1
+                else:
+                    self.site_data_dict[self.site_name][cur_im].append(np.exp(self.user_im_tgt[j].get('Value')[i]))
+            # covariance
+            if self.user_im_std[i] is None:
+                cur_sigma = np.zeros((num_secondary_im,num_secondary_im))
+            else:
+                cur_sigma = np.diag(self.user_im_std[i])
+            if self.user_im_corr[i] is None:
+                cur_corr = np.identity(num_secondary_im)
+            else:
+                cur_corr = np.array(self.user_im_corr[i])    
+            self.site_data_dict[self.site_name]['Covariance'].append(np.dot(np.dot(cur_sigma,cur_corr),cur_sigma).tolist())
+        # return
+        return 0
 
     def create_groundmotionset(self, gms_config = None):
         """
@@ -440,6 +582,17 @@ class SAF_IDA:
 
         # return
         return 0
+    
+    def get_user_defined_im(self, tgt_config = None):
+        # load site configuration
+        if self._parse_user_im_config(tgt_config):
+            err_msg = 'SAF_IDA.get_user_defined_im: error in parsing user-defined intensity measure.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
+        self.logfile.write_msg(msg='SAF_IDA.get_user_defined_im: user-defined IM target configured.')
+
+        # return
+        return 0
 
     def model_training(self, input_dir, train_config = None):
         # load info
@@ -475,15 +628,19 @@ class SAF_IDA:
     def model_prediction(self, pred_config, output_dir):
         # load info
         self.pred_response = [('All','All')]
-        # site
-        cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_data_dict=self.site_data_dict)
-        # prediction
-        self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
-        self.site_adj.site_specific_performance(setname=self.pred_response)
-        # save
-        filename = pred_config.get('ResultFilename',None)
-        self.save_to_file(filename=filename)
-
+        if pred_config.get('TargetType') in ['SiteSpecific','UserDefined','UserDefinedHazard']:
+            # site
+            cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_data_dict=self.site_data_dict)
+            # prediction
+            self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
+            self.site_adj.site_specific_performance(setname=self.pred_response)
+            # save
+            filename = pred_config.get('ResultFilename',None)
+            self.save_to_file(filename=filename)
+        else:
+            err_msg = 'SAF_IDA.model_prediction: the input TargetType is not supported yet.'
+            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+            return 1
 
     def save_to_file(self, filename=None, outdir=None):
         # output directory
@@ -587,7 +744,7 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
                 return 1
             # create site specific hazard information data
             saf_ida_job.get_site_specific_hazard(site_config=site_config)
-        elif tgt_type == 'UserDefined':
+        elif tgt_type in ['UserDefined','UserDefinedHazard']:
             tgt_config = job_info.get('UserDefinedHazard',None)
             if tgt_config is None:
                 err_msg = 'run_saf_ida: UserDefinedHazard not found in job configuration.'
@@ -595,6 +752,17 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
                 return 1
             # create user-defined hazard information data
             saf_ida_job.get_user_defined_hazard(tgt_config=tgt_config)
+        elif tgt_type in ['UserDefinedIM','UserDefinedIntensityMeasure']:
+            tgt_config = job_info.get('UserDefinedIM',None)
+            if tgt_config is None:
+                err_msg = 'run_saf_ida: UserDefinedIM not found in job configuration.'
+                saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+                return 1
+            # create user-defined hazard information data
+            saf_ida_job.get_user_defined_im(tgt_config=tgt_config)
+        else:
+            err_msg = 'run_saf_ida: TargetType not supported yet - please contact us.'
+            saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
 
     if 'Training' in job_type:
         # get training config
