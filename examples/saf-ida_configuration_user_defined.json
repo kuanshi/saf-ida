@@ -1,0 +1,66 @@
+{
+    "Directory": {
+        "Work": "./",
+        "Input": "./tests/user_defined",
+        "Output": "./tests/user_defined"
+    },
+    "Type": ["SiteSpecificHazard", "Training", "Prediction"],
+    "SiteSpecificHazard": {
+    },
+    "Training": {
+        "IDADataFile": "AAE_00001_08S_LA_08S_LADT_DF_NO_IDA_SAF_IDA_gms_T1_0.89.json",
+        "IDAGMFile": "processed_GM_set_SAF_IDA_gms_T1_0.89_T1_0.89_Damp_0.05.json",
+        "CollapseIM": "Sa (g)",
+        "CollapseEDP": "SDRmax",
+        "CollapseLimit": 0.10,
+        "EDPType": ["SDR"],
+        "EDPRange": {
+            "SDR": [0.0005, 0.1, 20]
+        },
+        "EDPIM": "Sa (g)",
+        "CollapseModelType": "OLS",
+        "CollapseModelParam": {"SaRatioPeriodRange": [0.2, 3.0]},
+        "EDPModelType": "OLS",
+        "EDPModelParam": {"SaRatioPeriodRange": [0.2, 3.0]}
+    },
+    "Prediction": {
+        "Site": "All",
+        "Response": "All",
+        "TargetType": "UserDefinedIM"
+    },
+    "UserDefinedIM": {
+        "TargetName": "LosAngeles",
+        "ReturnPeriods": [224,475],
+        "InputConfig": {
+            "Type": "IntensityMeasureDist",
+            "MeanLog": [
+                {
+                    "IM": "SA",
+                    "Value": [-0.2, -0.15]
+                },
+                {
+                    "IM": "SaRatio",
+                    "Value": [0.8, 0.9]
+                },
+                {
+                    "IM": "DS575",
+                    "Value": [2.5, 2.6]
+                }
+            ],
+            "StdLog": [
+                [0.5, 0.5],
+                [0.5, 0.5]
+            ],
+            "CorrelationCoeffMatrix": [
+                [[1, -0.1],[-0.1,1]],
+                [[1, -0.1],[-0.1,1]]
+            ]
+        },
+        "ConditionalIntensityMeasure": {
+            "SA": {
+                "Period": 0.89
+            }
+        },
+        "IMTargetType": "Dist"
+    }
+}
