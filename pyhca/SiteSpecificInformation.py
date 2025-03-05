@@ -210,7 +210,7 @@ class SiteData:
 
 class SiteInfo:
     
-    def __init__(self,dataname='SiteData',sitedatafile=None,siteconfigfile=None,site_data_dict=None):
+    def __init__(self,dataname='SiteData',sitedatafile=None,siteconfigfile=None,site_data_dict=None,site_im_dict=None):
         """
         __init__: initialization
         """
@@ -225,6 +225,8 @@ class SiteInfo:
             self.__site_config()
         elif site_data_dict is not None:
             self.__load_site_info(site_data_dict)
+        elif site_im_dict is not None:
+            self.__load_site_im(site_im_dict)
         else:
             print('SiteInfo.__init__: no site information is provided - please define sitedatafile or siteconfigfile')
             return
@@ -242,6 +244,7 @@ class SiteInfo:
         self.nameCase = data['Case name']
         for tagcase in self.nameCase:
             self.SiteCase[tagcase] = data[tagcase]
+        self.siteInfoType = 'SiteSpecificHazard'
         print("SiteInfo: site data loaded.")
 
     def __load_site_info(self,data):
@@ -249,7 +252,16 @@ class SiteInfo:
         self.nameCase = data['Case name']
         for tagcase in self.nameCase:
             self.SiteCase[tagcase] = data[tagcase]
+        self.siteInfoType = 'UserDefinedHazard'
         print("SiteInfo: site data loaded.")
+
+    def __load_site_im(self,data):
+        self.nCase = data['Number of cases']
+        self.nameCase = data['Case name']
+        for tagcase in self.nameCase:
+            self.SiteCase[tagcase] = data[tagcase]
+        self.siteInfoType = 'UserDefinedIM'
+        print("SiteInfo: site im loaded.")
 
     def __site_config(self):
 
@@ -265,6 +277,7 @@ class SiteInfo:
         self.nCase = site_config.get('SiteNumber',1)
         # site name
         self.nameCase = site_config.get('SiteName')
+        self.siteInfoType = 'SiteSpecificHazard'
         # check site name and number
         if len(self.nameCase) != self.nCase:
             print('SiteInfo.__site_config: site names are not consistent with site number {}'.format(self.nCase))

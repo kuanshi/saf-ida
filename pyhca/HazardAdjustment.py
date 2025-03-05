@@ -72,118 +72,145 @@ class SiteAdjustment:
         __compute_gcim: computing the general conditional IM targets
         """
         print("Computing GCIM targets.")
-        # collecting intensity measures
-        for tagsite in self.site.nameCase:
-            self.gcim[tagsite] = {}
-            tmpsite = self.site.SiteCase[tagsite]
-            self.RP = tmpsite['Return period (yr)']
-            self.nRP = len(self.RP)
-            for tagim in self.key_im:
-                if 'SaRatio' in tagim:
-                    for tmpkey in tmpsite.keys():
-                        # Sa at the conditioning period
-                        if 'Sa(T1)' in tmpkey:
-                            self.gcim[tagsite]['SaT1'] = np.array(tmpsite[tmpkey])
-                        # conditional mean spectrum
-                        elif 'PSA' in tmpkey:
-                            self.gcim[tagsite]['PSA'] = np.array(tmpsite[tmpkey])
-                            self.gcim[tagsite]['T'] = np.array(tmpsite['Spectral period (s)'])
-                        # End if 'Sa(T1)'
-                    # End for tmpkey
-                else:
-                    for tmpkey in tmpsite.keys():
-                        if tagim in tmpkey:
-                            # other measures
-                            self.gcim[tagsite][tagim] = np.array(tmpsite[tmpkey])
-                        # End if tagim
-                    # End for tmpkey
-                # End if 'SaRatio'
-            # End for tagim
-            # covariance
-            self.gcim[tagsite]['COV'] = np.array(tmpsite['Covariance'])
-        # End for tagsite
-         # computing GCIM log mean & covariance matrix
-        if 'SaRatio' in self.key_im:
+        if self.site.siteInfoType in ['SiteSpecificHazard','UserDefinedHazard']:
+            # collecting intensity measures
             for tagsite in self.site.nameCase:
-                tmpT = self.gcim[tagsite]['T']
-                self.gcim[tagsite]['SaRatio'] = []
-                # collapse model
-                if self.col_model:
-                    tmpTtag = np.intersect1d(np.where(tmpT>=np.round(
-                            self.optTra_col*self.T1/0.01)*0.01),np.where(
-                            tmpT<=np.round(self.optTrb_col*self.T1/0.01)*0.01))
-                    numT = len(tmpTtag)
-                    A = np.row_stack((np.column_stack((np.ones((1,numT))*(-1.0/numT),0.0)),
-                                      np.column_stack((np.zeros((1,numT)),1.0))))
-                    counttag = 0
-                    self.mean_sacol[tagsite] = []
-                    self.mean_subimcol[tagsite] = {}
-                    self.sigma_subimcol[tagsite] = {}
-                    for tagRP in self.RP:
-                        tmpSa = self.gcim[tagsite]['SaT1'][counttag]
-                        self.mean_sacol[tagsite].append(np.log(tmpSa))
-                        b = np.row_stack((np.log(tmpSa),0.0))
-                        tmpM = np.log(np.row_stack((
-                                self.gcim[tagsite]['PSA'][counttag,tmpTtag].reshape((-1,1)),
-                                self.gcim[tagsite]['Ds575'][counttag])))
-                        self.mean_subimcol[tagsite][tagRP] = A.dot(tmpM)+b
-                        tmpTag = np.column_stack((tmpTtag.reshape((1,-1)),len(tmpT)))
-                        tmpS = self.gcim[tagsite]['COV'][counttag]
-                        tmpS = tmpS[:,tmpTag]
-                        tmpS = tmpS[tmpTag,:].reshape((len(tmpTtag)+1,len(tmpTtag)+1))
-                        self.sigma_subimcol[tagsite][tagRP] = A.dot(tmpS).dot(A.transpose())
-                        counttag = counttag+1
-                    # End for tagRP
-                # End if len(self.col_model)
-                # EDP models
-                if len(self.edp_model):
-                    self.mean_saedp[tagsite] = {}
-                    self.mean_subimedp[tagsite] = {}
-                    self.sigma_subimedp[tagsite] = {}
-                    # loop over EDP
-                    for tagedp in self.nameEDP:
-                        tmpdiv = self.rangeEDP[tagedp]['Number of divisions']
-                        self.mean_saedp[tagsite][tagedp] = {}
-                        self.mean_subimedp[tagsite][tagedp] = {}
-                        self.sigma_subimedp[tagsite][tagedp] = {}
-                        # loop over all levels
-                        for taglevel in range(0,tmpdiv):
-                            tmpTra = self.edp_model[tagedp]['optTra'][taglevel]
-                            tmpTrb = self.edp_model[tagedp]['optTrb'][taglevel]
-                            tmpTtag = np.intersect1d(np.where(tmpT>=np.round(
-                                    tmpTra*self.T1/0.01)*0.01),np.where(tmpT<=np.round(
-                                            tmpTrb*self.T1/0.01)*0.01))
-                            numT = len(tmpTtag)
-                            A = np.row_stack((np.column_stack((
-                                    np.ones((1,numT))*(-1.0/numT),0.0)),np.column_stack((
-                                           np.zeros((1,numT)),1.0))))
-                            counttag = 0
-                            self.mean_saedp[tagsite][tagedp][taglevel] = []
-                            self.mean_subimedp[tagsite][tagedp][taglevel] = {}
-                            self.sigma_subimedp[tagsite][tagedp][taglevel] = {}
-                            for tagRP in self.RP:
-                                tmpSa = self.gcim[tagsite]['SaT1'][counttag]
-                                self.mean_saedp[tagsite][tagedp][taglevel].append(np.log(tmpSa))
-                                b = np.row_stack((np.log(tmpSa),1))
-                                tmpM = np.log(np.row_stack((
-                                        self.gcim[tagsite]['PSA'][counttag,tmpTtag].reshape((-1,1)),
-                                        self.gcim[tagsite]['Ds575'][counttag])))
-                                self.mean_subimedp[tagsite][tagedp][taglevel][tagRP] = A.dot(tmpM)+b
-                                tmpTag = np.column_stack((tmpTtag.reshape((1,-1)),len(tmpT)))
-                                tmpS = self.gcim[tagsite]['COV'][counttag]
-                                tmpS = tmpS[:,tmpTag]
-                                tmpS = tmpS[tmpTag,:].reshape((len(tmpTtag)+1,len(tmpTtag)+1))
-                                self.sigma_subimedp[tagsite][tagedp][taglevel][tagRP] = \
-                                A.dot(tmpS).dot(A.transpose())
-                                counttag = counttag+1
-                            # End for tagRP
-                        # End for taglevel
-                    # End for tagedp
-                # End if len(self.edp_model)
+                self.gcim[tagsite] = {}
+                tmpsite = self.site.SiteCase[tagsite]
+                self.RP = tmpsite['Return period (yr)']
+                self.nRP = len(self.RP)
+                for tagim in self.key_im:
+                    if 'SaRatio' in tagim:
+                        for tmpkey in tmpsite.keys():
+                            # Sa at the conditioning period
+                            if 'Sa(T1)' in tmpkey:
+                                self.gcim[tagsite]['SaT1'] = np.array(tmpsite[tmpkey])
+                            # conditional mean spectrum
+                            elif 'PSA' in tmpkey:
+                                self.gcim[tagsite]['PSA'] = np.array(tmpsite[tmpkey])
+                                self.gcim[tagsite]['T'] = np.array(tmpsite['Spectral period (s)'])
+                            # End if 'Sa(T1)'
+                        # End for tmpkey
+                    else:
+                        for tmpkey in tmpsite.keys():
+                            if tagim in tmpkey:
+                                # other measures
+                                self.gcim[tagsite][tagim] = np.array(tmpsite[tmpkey])
+                            # End if tagim
+                        # End for tmpkey
+                    # End if 'SaRatio'
+                # End for tagim
+                # covariance
+                self.gcim[tagsite]['COV'] = np.array(tmpsite['Covariance'])
             # End for tagsite
-        else:
-            # this part can be extended (KZ)
-            pass
+            # computing GCIM log mean & covariance matrix
+            if 'SaRatio' in self.key_im:
+                for tagsite in self.site.nameCase:
+                    tmpT = self.gcim[tagsite]['T']
+                    self.gcim[tagsite]['SaRatio'] = []
+                    # collapse model
+                    if self.col_model:
+                        tmpTtag = np.intersect1d(np.where(tmpT>=np.round(
+                                self.optTra_col*self.T1/0.01)*0.01),np.where(
+                                tmpT<=np.round(self.optTrb_col*self.T1/0.01)*0.01))
+                        numT = len(tmpTtag)
+                        A = np.row_stack((np.column_stack((np.ones((1,numT))*(-1.0/numT),0.0)),
+                                        np.column_stack((np.zeros((1,numT)),1.0))))
+                        counttag = 0
+                        self.mean_sacol[tagsite] = []
+                        self.mean_subimcol[tagsite] = {}
+                        self.sigma_subimcol[tagsite] = {}
+                        for tagRP in self.RP:
+                            tmpSa = self.gcim[tagsite]['SaT1'][counttag]
+                            self.mean_sacol[tagsite].append(np.log(tmpSa))
+                            b = np.row_stack((np.log(tmpSa),0.0))
+                            tmpM = np.log(np.row_stack((
+                                    self.gcim[tagsite]['PSA'][counttag,tmpTtag].reshape((-1,1)),
+                                    self.gcim[tagsite]['Ds575'][counttag])))
+                            self.mean_subimcol[tagsite][tagRP] = A.dot(tmpM)+b
+                            tmpTag = np.column_stack((tmpTtag.reshape((1,-1)),len(tmpT)))
+                            tmpS = self.gcim[tagsite]['COV'][counttag]
+                            tmpS = tmpS[:,tmpTag]
+                            tmpS = tmpS[tmpTag,:].reshape((len(tmpTtag)+1,len(tmpTtag)+1))
+                            self.sigma_subimcol[tagsite][tagRP] = A.dot(tmpS).dot(A.transpose())
+                            counttag = counttag+1
+                        # End for tagRP
+                    # End if len(self.col_model)
+                    # EDP models
+                    if len(self.edp_model):
+                        self.mean_saedp[tagsite] = {}
+                        self.mean_subimedp[tagsite] = {}
+                        self.sigma_subimedp[tagsite] = {}
+                        # loop over EDP
+                        for tagedp in self.nameEDP:
+                            tmpdiv = self.rangeEDP[tagedp]['Number of divisions']
+                            self.mean_saedp[tagsite][tagedp] = {}
+                            self.mean_subimedp[tagsite][tagedp] = {}
+                            self.sigma_subimedp[tagsite][tagedp] = {}
+                            # loop over all levels
+                            for taglevel in range(0,tmpdiv):
+                                tmpTra = self.edp_model[tagedp]['optTra'][taglevel]
+                                tmpTrb = self.edp_model[tagedp]['optTrb'][taglevel]
+                                tmpTtag = np.intersect1d(np.where(tmpT>=np.round(
+                                        tmpTra*self.T1/0.01)*0.01),np.where(tmpT<=np.round(
+                                                tmpTrb*self.T1/0.01)*0.01))
+                                numT = len(tmpTtag)
+                                A = np.row_stack((np.column_stack((
+                                        np.ones((1,numT))*(-1.0/numT),0.0)),np.column_stack((
+                                            np.zeros((1,numT)),1.0))))
+                                counttag = 0
+                                self.mean_saedp[tagsite][tagedp][taglevel] = []
+                                self.mean_subimedp[tagsite][tagedp][taglevel] = {}
+                                self.sigma_subimedp[tagsite][tagedp][taglevel] = {}
+                                for tagRP in self.RP:
+                                    tmpSa = self.gcim[tagsite]['SaT1'][counttag]
+                                    self.mean_saedp[tagsite][tagedp][taglevel].append(np.log(tmpSa))
+                                    b = np.row_stack((np.log(tmpSa),1))
+                                    tmpM = np.log(np.row_stack((
+                                            self.gcim[tagsite]['PSA'][counttag,tmpTtag].reshape((-1,1)),
+                                            self.gcim[tagsite]['Ds575'][counttag])))
+                                    self.mean_subimedp[tagsite][tagedp][taglevel][tagRP] = A.dot(tmpM)+b
+                                    tmpTag = np.column_stack((tmpTtag.reshape((1,-1)),len(tmpT)))
+                                    tmpS = self.gcim[tagsite]['COV'][counttag]
+                                    tmpS = tmpS[:,tmpTag]
+                                    tmpS = tmpS[tmpTag,:].reshape((len(tmpTtag)+1,len(tmpTtag)+1))
+                                    self.sigma_subimedp[tagsite][tagedp][taglevel][tagRP] = \
+                                    A.dot(tmpS).dot(A.transpose())
+                                    counttag = counttag+1
+                                # End for tagRP
+                            # End for taglevel
+                        # End for tagedp
+                    # End if len(self.edp_model)
+                # End for tagsite
+            else:
+                # this part can be extended (KZ)
+                pass
+        elif self.site.siteInfoType in ['UserDefinedIM']:
+            for tagsite in self.site.nameCase:
+                self.gcim[tagsite] = {}
+                tmpsite = self.site.SiteCase[tagsite]
+                self.RP = tmpsite['Return period (yr)']
+                self.nRP = len(self.RP)
+                for tagim in self.key_im:
+                    if 'SaRatio' in tagim:
+                        for tmpkey in tmpsite.keys():
+                            # Sa at the conditioning period
+                            if 'Sa(T1)' in tmpkey:
+                                self.gcim[tagsite]['SaT1'] = np.array(tmpsite[tmpkey])
+                            # End if 'Sa(T1)'
+                        # End for tmpkey
+                    else:
+                        for tmpkey in tmpsite.keys():
+                            if tagim in tmpkey:
+                                # other measures
+                                self.gcim[tagsite][tagim] = np.array(tmpsite[tmpkey])
+                            # End if tagim
+                        # End for tmpkey
+                    # End if 'SaRatio'
+                # End for tagim
+                # covariance
+                self.gcim[tagsite]['COV'] = np.array(tmpsite['Covariance'])
+
         print("GCIM targets computed.")
         
     def site_specific_performance(self,setname=[('All','All')],rflag=0):
@@ -488,3 +515,48 @@ class SiteAdjustment:
         # computing log likelihood value
         loglik = -np.sum(spst.binom.logpmf(num_yy,bignum,p))
         return loglik
+    
+    def __reliability_integral_1d(self,mu_resistance,sigma_resistance,mu_load,sigma_load):
+        """
+        __reliability_integral_1d: computing one-dimensional reliability integral,
+                                   where the resistance is decribed by a normal distribution
+                                   and the load is described by another normal distribution
+        - Input:
+            mu_resistance: mean resistance
+            sigma_resistance: standard deviation of resistance
+            mu_load: mean load
+            sigma_load: standard deviation of load
+        - Output:
+            p_f: failure probability
+        """
+        # initialization
+        p_f = 0
+        # evaluate failure probability
+        p_f = spst.norm.cdf(0,loc=mu_resistance-mu_load,scale=np.sqrt(sigma_resistance**2+sigma_load**2))
+        # return
+        return p_f
+    
+    def __demand_sampling(self,mu_im,cov_im,num_samples,dist_type='normal',sampling_type='random',random_seed=1):
+        """
+        __demand_sampling: generaing samples from a distribution
+        - Input:
+            mu_im: mean vector
+            cov_im: covariance matrix
+            num_samples: number of samples
+            dist_type: distribution type
+            sampling_type: sampling method
+            random_seed: random seed
+        - Output:
+            rlz_im: generated realizations
+        """
+        # random seed
+        np.random.seed(seed=random_seed)
+        # realizations
+        if dist_type == 'normal':
+            rlz_im = spst.multivariate_normal.rvs(mean=mu_im,cov=cov_im,size=num_samples)
+        elif dist_type == 'uniform':
+            a = mu_im-np.sqrt(cov_im)*np.sqrt(3)
+            b = mu_im+np.sqrt(cov_im)*np.sqrt(3)
+            rlz_im = spst.uniform.rvs(loc=a,scale=b-a,size=num_samples)
+        # return
+        return rlz_im

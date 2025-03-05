@@ -245,7 +245,9 @@ class SAF_IDA:
         }
         IM_Conversion = {
             'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)'
+            'DS595': 'Ds595 (s)',
+            'Ds575': 'Ds575 (s)',
+            'Ds595': 'Ds595 (s)'
         }
         for i,cur_rp in enumerate(self.return_periods):
             cur_im_target = self.site_data.im_target[i]
@@ -369,7 +371,9 @@ class SAF_IDA:
         }
         IM_Conversion = {
             'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)'
+            'DS595': 'Ds595 (s)',
+            'Ds575': 'Ds575 (s)',
+            'Ds595': 'Ds595 (s)'
         }
         for i,cur_rp in enumerate(self.return_periods):
             cur_inputfile = os.path.join(self.input_dir,self.user_hazard_input_file[i])
@@ -502,7 +506,9 @@ class SAF_IDA:
         }
         IM_Conversion = {
             'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)'
+            'DS595': 'Ds595 (s)',
+            'Ds575': 'Ds575 (s)',
+            'Ds595': 'Ds595 (s)'
         }
         for j,cur_im in enumerate(self.imt.keys()):
             if cur_im == 'SA' or cur_im.startswith('DS'):
@@ -638,9 +644,11 @@ class SAF_IDA:
             filename = pred_config.get('ResultFilename',None)
             self.save_to_file(filename=filename)
         else:
-            err_msg = 'SAF_IDA.model_prediction: the input TargetType is not supported yet.'
-            self.logfile.write_msg(msg=err_msg, msg_type='ERROR')
-            return 1
+            # site
+            cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_im_dict=self.site_data_dict)
+            # prediction
+            self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
+            self.site_adj.site_specific_performance(setname=self.pred_response)
 
     def save_to_file(self, filename=None, outdir=None):
         # output directory
