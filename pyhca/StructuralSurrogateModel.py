@@ -544,6 +544,60 @@ class SurrogateModel:
                 if logscale[1]:
                     plt.yscale('log')
                 plt.show()
+            #
+            if len(self.im_predictor) == 1:
+                curfig = plt.figure()
+                curax = curfig.gca()
+                x = np.exp(self.col_model.X[:, 0])
+                y = np.exp(self.col_model.y)
+                xrange = np.linspace(np.min(np.log(x)),np.max(np.log(x)),100).reshape((-1,1))
+                ypred = self.col_model.modeleval(x0=xrange,rflag=0)
+                sigmapred = self.col_model.modeleval(x0=self.col_model.X,rflag=1)
+                curax.plot(x,y,linestyle='None',marker='o', \
+                           markerfacecolor='k',markeredgecolor='k')
+                curax.plot(np.exp(xrange),np.exp(ypred),linestyle='-',marker=None, color='b')
+                curax.plot(np.exp(xrange),np.exp(ypred-sigmapred),linestyle='--',marker=None, color='b')
+                curax.plot(np.exp(xrange),np.exp(ypred+sigmapred),linestyle='--',marker=None, color='b')
+                curax.grid()
+                #plt.xlabel(self.gmdata['Key IM'][i])
+                plt.xlabel(self.im_predictor[0])
+                plt.ylabel('Collapse Sa (g)')
+                plt.title('Collapse Sa vs. '+self.im_predictor[0])
+                if logscale[0]:
+                    plt.xscale('log')
+                if logscale[1]:
+                    plt.yscale('log')
+                plt.show()
+            elif len(self.im_predictor) == 2:
+                curax = plt.figure(figsize=(8, 6)).add_subplot(projection='3d')
+                x1 = np.exp(self.col_model.X[:, 0])
+                x2 = np.exp(self.col_model.X[:, 1])
+                y = np.exp(self.col_model.y)
+                x1range = np.linspace(np.min(np.log(x1)),np.max(np.log(x1)),20)
+                x2range = np.linspace(np.min(np.log(x2)),np.max(np.log(x2)),20)
+                x1g, x2g = np.meshgrid(x1range,x2range)
+                ypred = self.col_model.modeleval(x0=np.squeeze([x1g.reshape((-1,1)),x2g.reshape((-1,1))]).transpose(),rflag=0)
+                sigmapred = self.col_model.modeleval(x0=self.col_model.X,rflag=1)
+                curax.plot(x1,x2,y,linestyle='None',marker='o', \
+                           markerfacecolor='k',markeredgecolor='k')
+                curax.plot_surface(np.exp(x1g),np.exp(x2g),np.exp(ypred.reshape((20,20))),color=[0.5,0.5,0.5],alpha=0.5)
+                curax.plot_surface(np.exp(x1g),np.exp(x2g),np.exp((ypred-sigmapred).reshape((20,20))),color=[0.8,0.8,0.8],alpha=0.5)
+                curax.plot_surface(np.exp(x1g),np.exp(x2g),np.exp((ypred+sigmapred).reshape((20,20))),color=[0.8,0.8,0.8],alpha=0.5)
+                curax.grid()
+                #plt.xlabel(self.gmdata['Key IM'][i])
+                curax.set_xlabel(self.im_predictor[0])
+                curax.set_ylabel(self.im_predictor[1])
+                curax.set_zlabel('Collapse Sa (g)')
+                plt.title('Collapse Sa vs. {} & {}'.format(self.im_predictor[0],self.im_predictor[1]))
+                if logscale[0]:
+                    curax.set_xscale('log')
+                    curax.set_yscale('log')
+                if logscale[1]:
+                    curax.set_zscale('log')
+                plt.show()
+            else:
+                pass
+
         else:
             print('No collapse models were found.')
             return 0

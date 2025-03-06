@@ -509,14 +509,18 @@ class SiteAdjustment:
                     # draw random samples from the distribution (Monte Carlo)
                     if len(self.key_im)>1:
                         v_im = spst.multivariate_normal.rvs(mean=tmpMsubim[tagRP].transpose(),cov=tmpSsubim[tagRP],size=1000)
+                        for ii,cur_im in enumerate(self.key_im):
+                            self.plot_target_im_sample(cur_im,v_im[:,ii])
                     else:
                          v_im = spst.norm.rvs(loc=tmpMsubim[tagRP][0],scale=tmpSsubim[tagRP][0],size=1000).reshape(-1, 1)
+                         self.plot_target_im_sample(self.key_im[0],v_im)
                     #print('v_im=',v_im)
                     # computing cond. log mean and standard deviation of collapse
                     theta_sa = self.col_model.modeleval(x0=v_im,rflag=0)
                     beta_sa = self.col_model.modeleval(x0=self.col_model.X,rflag=1)
-                    print('Median collapse Sa|IMsuppl = ',np.exp(theta_sa))
-                    print('Dispersion of collapse Sa|IMsuppl = ',beta_sa)
+                    #print('Median collapse Sa|IMsuppl = ',np.exp(theta_sa))
+                    #print('Dispersion of collapse Sa|IMsuppl = ',beta_sa)
+                    self.plot_col_sa_imsuppl(theta_sa,beta_sa,tmpMsa[rptag])
                     # computing exceeding probability
                     eprob = spst.norm.cdf(tmpMsa[rptag],loc=theta_sa,scale=beta_sa)
                     print('P(col|IMsuppl,Sa={}) = '.format(np.exp(tmpMsa[rptag])),np.mean(eprob))
@@ -583,6 +587,31 @@ class SiteAdjustment:
                 # End for tagRP
             # if tagcase
         # End for tagcase
+
+
+    def plot_target_im_sample(self,im_name,im_sample):
+        curfig = plt.figure()
+        curax = curfig.gca()
+        curax.hist(im_sample,bins=20,density=True,alpha=0.5,color=[0.5,0.5,0.5],edgecolor=[0.2,0.2,0.2])
+        curax.set_xlabel('ln({}|Sa)'.format(im_name))
+        curax.set_ylabel('Probability density function')
+        plt.title('PDF({}|Sa)'.format(im_name))
+        plt.show()
+
+    def plot_col_sa_imsuppl(self,theta_sa,beta_sa,sa_tgt):
+        curfig = plt.figure()
+        curax = curfig.gca()
+        for cur_theta in theta_sa:
+            theta_range = np.linspace(cur_theta-4*beta_sa,cur_theta+4*beta_sa,1000)
+            pcol = spst.norm.cdf(theta_range,loc=cur_theta,scale=beta_sa)
+            curax.plot(np.exp(theta_range),pcol,linestyle='-',marker=None, color=[0.6,0.6,0.6],alpha=0.2)
+        curax.plot([np.exp(sa_tgt),np.exp(sa_tgt)],[0,1],linestyle='-',marker=None, color='b')
+        curax.set_xlabel('Sa (g)')
+        curax.set_ylabel('P(col|IMsuppl)')
+        #curax.set_xscale('log')
+        curax.set_ylim([0,1])
+        plt.title('P(col|IMsuppl)')
+        plt.show()
 
     def plot_result(self,setname=[]):
         """
