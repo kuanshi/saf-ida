@@ -1,0 +1,107 @@
+{
+  "Directory": {
+    "Work": "./",
+    "Input": "./tests/user_defined/",
+    "Output": "./tests/user_defined/"
+  },
+  "Type": [
+    "SiteSpecificHazard",
+    "Training",
+    "Prediction"
+  ],
+  "SiteSpecificHazard": {},
+  "Training": {
+    "IDADataFile": "AAE_00002_08S_LA_08S_LADT_DF_OB_IDA_SAF_IDA_gms_T1_0.89.json",
+    "IDAGMFile": "processed_GM_set_SAF_IDA_gms_T1_0.89_T1_0.89_Damp_0.05.json",
+    "CollapseIM": "Sa (g)",
+    "CollapseEDP": "SDRmax",
+    "CollapseLimit": 0.1,
+    "EDPType": [
+      "SDR"
+    ],
+    "EDPRange": {
+      "SDR": [
+        0.0005,
+        0.1,
+        20
+      ]
+    },
+    "EDPIM": "Sa (g)",
+    "CollapseModelType": "OLS",
+    "CollapseModelParam": {
+      "SaRatioPeriodRange": [
+        0.2,
+        3.0
+      ]
+    },
+    "EDPModelType": "OLS",
+    "EDPModelParam": {
+      "SaRatioPeriodRange": [
+        0.2,
+        3.0
+      ]
+    },
+    "IMPredictor": [
+      "SaRatio",
+      "Ds575"
+    ]
+  },
+  "Prediction": {
+    "Site": "All",
+    "Response": "All",
+    "TargetType": "UserDefinedIM"
+  },
+  "UserDefinedIM": {
+    "TargetName": "user_im_tgt",
+    "ReturnPeriods": [
+      2475
+    ],
+    "InputConfig": {
+      "Type": "IntensityMeasureDist",
+      "MeanLog": [
+        {
+          "IM": "SA",
+          "Value": [
+            -0.2231435513142097
+          ]
+        },
+        {
+          "IM": "SaRatio",
+          "Value": [
+            0.6931471805599453
+          ]
+        },
+        {
+          "IM": "Ds575",
+          "Value": [
+            2.0794415416798357
+          ]
+        }
+      ],
+      "StdLog": [
+        [
+          0.2,
+          0.2
+        ]
+      ],
+      "CorrelationCoeffMatrix": [
+        [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ]
+      ]
+    },
+    "ConditionalIntensityMeasure": {
+      "SA": {
+        "Period": 0.89
+      }
+    },
+    "IMTargetType": "Dist"
+  }
+}
