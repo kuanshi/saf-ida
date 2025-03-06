@@ -15,7 +15,8 @@ class SiteAdjustment:
         """
         # collect data from the surrage model
         # key intensity measures
-        self.key_im = surrogate.gmdata['Key IM']
+        #self.key_im = surrogate.gmdata['Key IM']
+        self.key_im = surrogate.im_predictor
         # conditional period
         self.T1 = surrogate.T1
         # performance models
@@ -191,12 +192,17 @@ class SiteAdjustment:
                 tmpsite = self.site.SiteCase[tagsite]
                 self.RP = tmpsite['Return period (yr)']
                 self.nRP = len(self.RP)
+                print('self.key_im=',self.key_im)
                 for tagim in self.key_im:
                     if 'SaRatio' in tagim:
                         for tmpkey in tmpsite.keys():
                             # Sa at the conditioning period
                             if 'Sa(T1)' in tmpkey:
                                 self.gcim[tagsite]['SaT1'] = np.array(tmpsite[tmpkey])
+                            else:
+                                if tagim in tmpkey:
+                                    # other measures
+                                    self.gcim[tagsite][tagim] = np.array(tmpsite[tmpkey])
                             # End if 'Sa(T1)'
                         # End for tmpkey
                     else:
@@ -208,9 +214,51 @@ class SiteAdjustment:
                         # End for tmpkey
                     # End if 'SaRatio'
                 # End for tagim
+                print('self.gcim[tagsite]=',self.gcim[tagsite])
                 # covariance
                 self.gcim[tagsite]['COV'] = np.array(tmpsite['Covariance'])
-
+                if self.col_model:
+                    self.mean_sacol[tagsite] = []
+                    self.mean_subimcol[tagsite] = {}
+                    self.sigma_subimcol[tagsite] = {}
+                    for counttag,tagRP in enumerate(self.RP):
+                        tmpSa = self.gcim[tagsite]['SaT1'][counttag]
+                        self.mean_sacol[tagsite].append(np.log(tmpSa))
+                        tmp = []
+                        for tagim in self.key_im:
+                            tmp.append(np.log(self.gcim[tagsite][tagim][counttag]))
+                        self.mean_subimcol[tagsite][tagRP] = np.array(tmp)
+                        self.sigma_subimcol[tagsite][tagRP] = np.array(self.gcim[tagsite]['COV'][counttag])
+                if len(self.edp_model):
+                    self.mean_saedp[tagsite] = {}
+                    self.mean_subimedp[tagsite] = {}
+                    self.sigma_subimedp[tagsite] = {}
+                    # loop over EDP
+                    for tagedp in self.nameEDP:
+                        tmpdiv = self.rangeEDP[tagedp]['Number of divisions']
+                        self.mean_saedp[tagsite][tagedp] = {}
+                        self.mean_subimedp[tagsite][tagedp] = {}
+                        self.sigma_subimedp[tagsite][tagedp] = {}
+                        # loop over all levels
+                        for taglevel in range(0,tmpdiv):
+                            self.mean_saedp[tagsite][tagedp][taglevel] = []
+                            self.mean_subimedp[tagsite][tagedp][taglevel] = {}
+                            self.sigma_subimedp[tagsite][tagedp][taglevel] = {}
+                            for counttag,tagRP in enumerate(self.RP):
+                                tmpSa = self.gcim[tagsite]['SaT1'][counttag]
+                                self.mean_saedp[tagsite][tagedp][taglevel].append(np.log(tmpSa))
+                                tmp = []
+                                for tagim in self.key_im:
+                                    tmp.append(np.log(self.gcim[tagsite][tagim][counttag]))
+                                self.mean_subimedp[tagsite][tagedp][taglevel][tagRP] = np.array(tmp)
+                                self.sigma_subimedp[tagsite][tagedp][taglevel][tagRP] = np.array(self.gcim[tagsite]['COV'][counttag])
+                            # End for tagRP
+                        # End for taglevel
+                    # End for tagedp
+                # End if len(self.edp_model)
+            # End for tagsite
+        else:
+            print("{} is not supported yet.".format(self.site.siteInfoType))
         print("GCIM targets computed.")
         
     def site_specific_performance(self,setname=[('All','All')],rflag=0):
@@ -293,10 +341,13 @@ class SiteAdjustment:
                     for tagIM in self.key_im:
                         v_im.append(tmp_grid[counttag].reshape((-1,1)))
                         counttag = counttag+1
-                    v_im = np.array(v_im).transpose().reshape((-1,2))
+                    v_im = np.array(v_im).transpose().reshape((-1,len(self.key_im)))
                     # computing probability mass function
-                    pmf = spst.multivariate_normal.pdf(v_im,mean=tmpMsubim[tagRP].transpose()[0],
-                                                       cov=tmpSsubim[tagRP])*np.prod(dm)
+                    if len(self.key_im)>1:
+                        pmf = spst.multivariate_normal.pdf(v_im,mean=tmpMsubim[tagRP].transpose()[0],
+                                                        cov=tmpSsubim[tagRP])*np.prod(dm)
+                    else:
+                        pmf = spst.norm.pdf(v_im,loc=tmpMsubim[tagRP][0],scale=tmpSsubim[tagRP][0])*np.prod(dm)
                     # computing cond. log mean and standard deviation of collapse
                     theta_sa = self.col_model.modeleval(x0=v_im,rflag=0)
                     beta_sa = self.col_model.modeleval(x0=self.col_model.X,rflag=1)
@@ -354,11 +405,16 @@ class SiteAdjustment:
                         for tagIM in self.key_im:
                             v_im.append(tmp_grid[counttag].reshape((-1,1)))
                             counttag = counttag+1
-                        v_im = np.array(v_im).transpose().reshape((-1,2))
+                        v_im = np.array(v_im).transpose().reshape((-1,len(self.key_im)))
                         # computing probability mass function
-                        pmf = spst.multivariate_normal.pdf(
-                                v_im,mean=tmpMsubim[tagRP].transpose()[0],
-                                cov=tmpSsubim[tagRP])*np.prod(dm)
+                        if len(self.key_im)>1:
+                            pmf = spst.multivariate_normal.pdf(
+                                    v_im,mean=tmpMsubim[tagRP].transpose()[0],
+                                    cov=tmpSsubim[tagRP])*np.prod(dm)
+                        else:
+                            pmf = spst.norm.pdf(
+                                    v_im,loc=tmpMsubim[tagRP][0],
+                                    scale=tmpSsubim[tagRP][0])*np.prod(dm)
                         # computing cond. log mean and standard deviation of collapse
                         theta_sa = self.edp_model[tagedp]['model'][tagR].modeleval(
                                 x0=v_im,rflag=0)
@@ -391,6 +447,143 @@ class SiteAdjustment:
             # if tagcase
         # End for tagcase                
     
+    def site_specific_performance_user(self,setname=[('All','All')],rflag=0,random_seed=1):
+        """
+        site_specific_performance_user: computing site-specific responses
+        - Input: 
+            setname - (the case tag, the response variable tag)
+            rflag - rewrite flag (0: no rewriting, 1: overwriting old data)
+            The default value is 'All' including all existing attributes
+        """
+        tmppool = []
+        for tagcase in setname:
+            if tagcase == ('All','All'):
+                if len(self.ssp_pool_set)==0 or rflag:
+                    for tmp1 in self.site.nameCase:
+                        for tmp2 in self.nameEDP:
+                            tmppool.append((tmp1,tmp2))
+                            # removing old data
+                            if (tmp1,tmp2) in self.ssp_pool_set:
+                                self.ssp_pool_set.remove((tmp1,tmp2))
+                        tmp2 = 'Collapse'
+                        tmppool.append((tmp1,tmp2))
+                        # removing old data
+                        if (tmp1,tmp2) in self.ssp_pool_set:
+                            self.ssp_pool_set.remove((tmp1,tmp2))
+                else:
+                    print("Please use rflag=1 for overwriting data.")
+            # if tagcase already exists
+            elif tagcase in self.ssp_pool_set:
+                # checking rewrite flag
+                if rflag:
+                    tmppool.append(tagcase)
+                    # remove the old data
+                    self.ssp_pool_set.remove(tagcase)
+                else:
+                    print("Case existed: "+tagcase+", please use rflag=1 for overwriting.")
+                    return
+            elif tagcase[0] in self.site.nameCase and \
+            (tagcase[1] in self.nameEDP or tagcase[1]=='Collapse'):
+                tmppool.append(tagcase)
+            else:
+                print("Case not found: "+tagcase[0]+".")
+                return
+        for tagcase in tmppool:
+            self.ssp_pool_set.append(tagcase)
+            
+        # computing site-specific responses
+        np.random.seed(random_seed)
+        for tagcase in self.ssp_pool_set:
+            self.ssp[tagcase] = {}
+            # collapse
+            if tagcase[1] == 'Collapse':
+                self.ssp[tagcase]['Collapse'] = {}
+                print("Adjusting collapse fragility for Case: "+tagcase[0])
+                # collecting Sa and sub-IM log mean and covariance
+                tmpMsa = self.mean_sacol[tagcase[0]]
+                tmpMsubim = self.mean_subimcol[tagcase[0]]
+                tmpSsubim = self.sigma_subimcol[tagcase[0]]
+                # loop over range
+                prob = []
+                for rptag,tagRP in enumerate(self.RP):
+                    # draw random samples from the distribution (Monte Carlo)
+                    if len(self.key_im)>1:
+                        v_im = spst.multivariate_normal.rvs(mean=tmpMsubim[tagRP].transpose(),cov=tmpSsubim[tagRP],size=1000)
+                    else:
+                         v_im = spst.norm.rvs(loc=tmpMsubim[tagRP][0],scale=tmpSsubim[tagRP][0],size=1000).reshape(-1, 1)
+                    #print('v_im=',v_im)
+                    # computing cond. log mean and standard deviation of collapse
+                    theta_sa = self.col_model.modeleval(x0=v_im,rflag=0)
+                    beta_sa = self.col_model.modeleval(x0=self.col_model.X,rflag=1)
+                    print('Median collapse Sa|IMsuppl = ',np.exp(theta_sa))
+                    print('Dispersion of collapse Sa|IMsuppl = ',beta_sa)
+                    # computing exceeding probability
+                    eprob = spst.norm.cdf(tmpMsa[rptag],loc=theta_sa,scale=beta_sa)
+                    print('P(col|IMsuppl,Sa={}) = '.format(np.exp(tmpMsa[rptag])),np.mean(eprob))
+                    # estimating collapse probability
+                    prob.append(np.mean(eprob))
+                prob = np.array(prob).transpose()
+                #print('prob=',prob)
+                #print('sa=',np.array(tmpMsa).flatten())
+                # collecting estimated probability
+                self.ssp[tagcase]['Collapse']['Sa (g)'] = np.exp(tmpMsa).tolist()
+                self.ssp[tagcase]['Collapse']['Est. Pcol'] = prob.tolist()
+                # MLE for log mean and standard dev. of collapse fragility
+                if len(prob)>1:
+                    self.ssp[tagcase]['Collapse']['Fragility'] = self.__mle_normpara(
+                            np.array(tmpMsa).flatten(),prob).tolist()
+                    print("Adjusted median collapse Sa (g): "+ \
+                        str(np.exp(self.ssp[tagcase]['Collapse']['Fragility'][0])))
+                    print("Adjusted dispersion of collapse Sa: "+ \
+                        str(self.ssp[tagcase]['Collapse']['Fragility'][1]))
+            else:
+                print("Adjusting EDP: "+tagcase[1]+" for "+tagcase[0])
+                # calling EDP
+                tagedp = tagcase[1]
+                self.ssp[tagcase][tagedp] = {}
+                nRange = self.rangeEDP[tagedp]['Number of divisions']
+                # initializing exceeding probability
+                eprob = np.ones((self.nRP,nRange))
+                # loop over all ranges
+                for tagR in range(0,nRange):
+                    tmpMsa = self.mean_saedp[tagcase[0]][tagedp][tagR]
+                    tmpMsubim = self.mean_subimedp[tagcase[0]][tagedp][tagR]
+                    tmpSsubim = self.sigma_subimedp[tagcase[0]][tagedp][tagR]
+                    # loop over return periods
+                    for countRP,tagRP in enumerate(self.RP):
+                        # draw random samples from the distribution (Monte Carlo)
+                        if len(self.key_im)>1:
+                            v_im = spst.multivariate_normal.rvs(mean=tmpMsubim[tagRP].transpose(),cov=tmpSsubim[tagRP],size=1000)
+                        else:
+                            v_im = spst.norm.rvs(loc=tmpMsubim[tagRP][0],scale=tmpSsubim[tagRP][0],size=1000).reshape(-1, 1)
+                        #print('v_im=',v_im)
+                        # computing cond. log mean and standard deviation of collapse
+                        theta_sa = self.edp_model[tagedp]['model'][tagR].modeleval(x0=v_im,rflag=0)
+                        beta_sa = self.edp_model[tagedp]['model'][tagR].modeleval(x0=self.edp_model[tagedp]['model'][tagR].X,rflag=1)
+                        # computing exceeding probability
+                        tmp_prob = spst.norm.cdf(tmpMsa[countRP],loc=theta_sa,scale=beta_sa)
+                        eprob[countRP,tagR] = np.mean(tmp_prob)
+                        #print('eprob=',eprob)
+                    # End for tagRP                    
+                # End for tagR
+                # computing conditional CDF of EDP
+                cond_CDF = np.ones((1,nRange))
+                for countRP,tagRP in enumerate(self.RP):
+                    # normalization
+                    cond_CDF = (1.0-eprob[countRP,:])/(1.0-eprob[countRP,-1])
+                    cond_CDF[np.min(np.where(cond_CDF>=1.0)):] = 1.0
+                    cond_CDF[0] = 0.0
+                    ## estimating log mean and standard deviation of EDP
+                    self.ssp[tagcase][tagedp][tagRP] = self.__mle_normpara(
+                            np.log(self.rangeEDP[tagedp]['Range']),cond_CDF).tolist()
+                    print("Adjusted median of "+tagcase[1]+" at RP"+str(tagRP)+": "+ \
+                          str(np.exp(self.ssp[tagcase][tagedp][tagRP][0])))
+                    print("Adjusted std of "+tagcase[1]+" at RP"+str(tagRP)+": "+ \
+                          str(self.ssp[tagcase][tagedp][tagRP][1]))
+                # End for tagRP
+            # if tagcase
+        # End for tagcase
+
     def plot_result(self,setname=[]):
         """
         plot_result: plotting adjusted collapse and response results
@@ -507,8 +700,10 @@ class SiteAdjustment:
         - Output:
             loglik: negative log likelihood
         """
+        import warnings
+        warnings.filterwarnings('ignore')
         # big sampling number
-        bignum = 1000
+        bignum = 100
         num_yy = np.around(bignum*yy).reshape((-1,1))
         # estimating cumulative probabaility values given t
         p = spst.norm.cdf(xx,loc=t[0],scale=t[1]).reshape((-1,1))

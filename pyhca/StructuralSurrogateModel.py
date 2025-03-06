@@ -262,10 +262,13 @@ class SurrogateModel:
                 tmpoptlambda = []
                 counttag = 0
                 for tra in self.vTra:
-                    tmpX = np.log(np.column_stack(
-                            (self.saratio_pool[counttag].reshape((-1,1)),
-                                np.array(self.gmdata[tmp_kim[
-                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    if len(tmp_kim)>1:
+                        tmpX = np.log(np.column_stack(
+                                (self.saratio_pool[counttag].reshape((-1,1)),
+                                    np.array(self.gmdata[tmp_kim[
+                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    else:
+                        tmpX = np.log((self.saratio_pool[counttag].reshape((-1,1))))
                     if modeltag=='LLM':
                         tmpmodel = LocalLinearRegression(
                                 modelname='LLM',data=np.column_stack(
@@ -292,10 +295,13 @@ class SurrogateModel:
                 self.optTra['Collapse'] = self.vTra[opttag]
                 self.optTrb['Collapse'] = self.vTrb[opttag]
                 # collapse model
-                tmpX = np.log(np.column_stack(
-                        (self.saratio_pool[opttag].reshape((-1,1)),
-                        np.array(self.gmdata[tmp_kim[
-                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                if len(tmp_kim)>1:
+                    tmpX = np.log(np.column_stack(
+                            (self.saratio_pool[opttag].reshape((-1,1)),
+                            np.array(self.gmdata[tmp_kim[
+                                    tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                else:
+                    tmpX = np.log((self.saratio_pool[opttag].reshape((-1,1))))
             # if user-specified period range is given
             else:
                 #tmp_kim = self.gmdata['Key IM']
@@ -304,10 +310,13 @@ class SurrogateModel:
                 tmpoptlambda = []
                 counttag = 0
                 for tra in self.vTra_col:
-                    tmpX = np.log(np.column_stack(
-                            (self.saratio_pool_col[counttag].reshape((-1,1)),
-                                np.array(self.gmdata[tmp_kim[
-                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    if len(tmp_kim)>1:
+                        tmpX = np.log(np.column_stack(
+                                (self.saratio_pool_col[counttag].reshape((-1,1)),
+                                    np.array(self.gmdata[tmp_kim[
+                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                    else:
+                        tmpX = np.log((self.saratio_pool_col[counttag].reshape((-1,1))))
                     if modeltag=='LLM':
                         tmpmodel = LocalLinearRegression(
                                 modelname='LLM',data=np.column_stack(
@@ -334,10 +343,13 @@ class SurrogateModel:
                 self.optTra['Collapse'] = self.vTra_col[opttag]
                 self.optTrb['Collapse'] = self.vTrb_col[opttag]
                 # collapse model
-                tmpX = np.log(np.column_stack(
-                        (self.saratio_pool_col[opttag].reshape((-1,1)),
-                        np.array(self.gmdata[tmp_kim[
-                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                if len(tmp_kim)>1:
+                    tmpX = np.log(np.column_stack(
+                            (self.saratio_pool_col[opttag].reshape((-1,1)),
+                            np.array(self.gmdata[tmp_kim[
+                                    tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                else:
+                    tmpX = np.log((self.saratio_pool_col[opttag].reshape((-1,1))))
             if modeltag=='LLM':
                 self.col_model = LocalLinearRegression(
                         modelname='LLM',data=np.column_stack(
@@ -415,10 +427,13 @@ class SurrogateModel:
                     if self.saratio_trng_user_edp is None:
                         # loop over all period ranges
                         for tra in self.vTra:
-                            tmpX = np.log(np.column_stack(
-                                    (self.saratio_pool[counttag].reshape((-1,1)),
-                                    np.array(self.gmdata[tmp_kim[
-                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            if len(tmp_kim)>1:
+                                tmpX = np.log(np.column_stack(
+                                        (self.saratio_pool[counttag].reshape((-1,1)),
+                                        np.array(self.gmdata[tmp_kim[
+                                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            else:
+                                tmpX = np.log((self.saratio_pool[counttag].reshape((-1,1))))
                             if modeltag=='LLM':
                                 pass
                             else:
@@ -443,10 +458,13 @@ class SurrogateModel:
                     # if user-specified period range is given
                     else:
                         for tra in self.vTra_edp:
-                            tmpX = np.log(np.column_stack(
-                                    (self.saratio_pool_edp[counttag].reshape((-1,1)),
-                                    np.array(self.gmdata[tmp_kim[
-                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            if len(tmp_kim)>1:
+                                tmpX = np.log(np.column_stack(
+                                        (self.saratio_pool_edp[counttag].reshape((-1,1)),
+                                        np.array(self.gmdata[tmp_kim[
+                                                tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                            else:
+                                tmpX = np.log((self.saratio_pool_edp[counttag].reshape((-1,1))))
                             if modeltag=='LLM':
                                 pass
                             else:
@@ -464,10 +482,13 @@ class SurrogateModel:
                         self.edp_model[tagedp]['optTra'].append(self.vTra_edp[opttag])
                         self.edp_model[tagedp]['optTrb'].append(self.vTrb_edp[opttag])
                         # EDP model
-                        tmpX = np.log(np.column_stack(
-                                (self.saratio_pool_edp[opttag].reshape((-1,1)),
-                                np.array(self.gmdata[tmp_kim[
-                                        tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                        if len(tmp_kim)>1:
+                            tmpX = np.log(np.column_stack(
+                                    (self.saratio_pool_edp[opttag].reshape((-1,1)),
+                                    np.array(self.gmdata[tmp_kim[
+                                            tmp_kim!='SaRatio']]).reshape((-1,1)))))
+                        else:
+                            tmpX = np.log((self.saratio_pool_edp[opttag].reshape((-1,1))))
                     if modeltag=='LLM':
                         pass
                     else:
@@ -497,7 +518,7 @@ class SurrogateModel:
                                             modeltype=modeltag,modelpara=modelcoef)
         print("EDP models computed.")
 
-    def plot_raw_collapse(self):
+    def plot_raw_collapse(self,logscale=[False,False]):
         """
         plot_raw_collapse: plot the raw collapse Sa versus supplemental IMs
         - Input: none
@@ -518,6 +539,10 @@ class SurrogateModel:
                 plt.ylabel('Collapse Sa (g)')
                 #plt.title('Collapse Sa vs. '+self.gmdata['Key IM'][i])
                 plt.title('Collapse Sa vs. '+self.im_predictor[i])
+                if logscale[0]:
+                    plt.xscale('log')
+                if logscale[1]:
+                    plt.yscale('log')
                 plt.show()
         else:
             print('No collapse models were found.')

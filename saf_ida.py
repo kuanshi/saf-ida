@@ -264,7 +264,7 @@ class SAF_IDA:
                         else:
                             T1_idx = self.imt.get('SA').get('Periods').index(self.cim['SA'].get('Period'))
                             self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(cur_im_target.get('ConditionalMean')[T1_idx])
-                    elif cur_im.startswith('DS'):
+                    elif cur_im.startswith('DS') or cur_im.startswith('Ds'):
                         self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(cur_im_target.get('ConditionalMean')[im_idx])
                         im_idx = im_idx+1
                     else:
@@ -283,7 +283,7 @@ class SAF_IDA:
                         else:
                             T1_idx = self.imt.get('SA').get('Periods').index(self.cim['SA'].get('Period'))
                             self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(cur_im_target.get('Median')[T1_idx])
-                    elif cur_im.startswith('DS'):
+                    elif cur_im.startswith('DS') or cur_im.startswith('Ds'):
                         self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(cur_im_target.get('Median')[im_idx])
                         im_idx = im_idx+1
                     else:
@@ -389,7 +389,7 @@ class SAF_IDA:
                     else:
                         T1_idx = self.imt.get('SA').get('Periods').index(self.cim['SA'].get('Period'))
                         self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(np.exp(np.log(df_im_realizations.iloc[:,T1_idx]).mean()))
-                elif cur_im.startswith('DS'):
+                elif cur_im.startswith('DS') or cur_im.startswith('Ds'):
                     self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(np.exp(np.log(df_im_realizations.iloc[:,im_idx]).mean()))
                     im_idx = im_idx+1
                 else:
@@ -511,7 +511,7 @@ class SAF_IDA:
             'Ds595': 'Ds595 (s)'
         }
         for j,cur_im in enumerate(self.imt.keys()):
-            if cur_im == 'SA' or cur_im.startswith('DS'):
+            if cur_im == 'SA' or cur_im.startswith('DS') or cur_im.startswith('Ds'):
                 pass
             else:
                 self.site_data_dict[self.site_name][cur_im] = []
@@ -525,7 +525,7 @@ class SAF_IDA:
                         pass
                     else:
                         self.site_data_dict[self.site_name]['Sa(T1) (g)'].append(np.exp(self.user_im_tgt[j].get('Value')[i]))
-                elif cur_im.startswith('DS'):
+                elif cur_im.startswith('DS') or cur_im.startswith('Ds'):
                     self.site_data_dict[self.site_name][IM_Conversion.get(cur_im)].append(np.exp(self.user_im_tgt[j].get('Value')[i]))
                     im_idx = im_idx+1
                 else:
@@ -648,7 +648,7 @@ class SAF_IDA:
             cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_im_dict=self.site_data_dict)
             # prediction
             self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
-            self.site_adj.site_specific_performance(setname=self.pred_response)
+            self.site_adj.site_specific_performance_user(setname=self.pred_response)
 
     def save_to_file(self, filename=None, outdir=None):
         # output directory
