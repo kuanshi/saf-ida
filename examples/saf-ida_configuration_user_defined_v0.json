@@ -22,7 +22,7 @@
         "CollapseModelParam": {"SaRatioPeriodRange": [0.2, 3.0]},
         "EDPModelType": "OLS",
         "EDPModelParam": {"SaRatioPeriodRange": [0.2, 3.0]},
-        "IMPredictor": ["SaRatio"]
+        "IMPredictor": ["SaRatio","Ds575"]
     },
     "Prediction": {
         "Site": "All",
@@ -42,13 +42,17 @@
                 {
                     "IM": "SaRatio",
                     "Value":  [0.50]
+                },
+                {
+                    "IM": "Ds575",
+                    "Value": [2.6]
                 }
             ],
             "StdLog": [
-                [0.2]
+                [0.3, 0.0]
             ],
             "CorrelationCoeffMatrix": [
-                [[1]]
+                [[1, -0.1],[-0.1,1]]
             ]
         },
         "ConditionalIntensityMeasure": {
