@@ -36,7 +36,7 @@
 # Kuanshi Zhong
 #
 
-import argparse, json, os
+import argparse, json, os, copy
 from general import *
 from pyngms import NestedGroundMotionSelection as NGMS
 from pyhca import SiteSpecificInformation as SSInfo
@@ -238,16 +238,16 @@ class SAF_IDA:
                 'Return period (yr)': self.return_periods,
                 'Sa(T1) (g)': [],
                 'PSA (g)': [],
-                'Ds575 (s)': [],
-                'Ds595 (s)': [],
+                'DS575': [],
+                'DS595': [],
                 'Covariance': []
             }
         }
         IM_Conversion = {
-            'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)',
-            'Ds575': 'Ds575 (s)',
-            'Ds595': 'Ds595 (s)'
+            'DS575': 'DS575',
+            'DS595': 'DS595',
+            'Ds575': 'DS575',
+            'Ds595': 'DS595'
         }
         for i,cur_rp in enumerate(self.return_periods):
             cur_im_target = self.site_data.im_target[i]
@@ -341,6 +341,7 @@ class SAF_IDA:
                         "Periods": cur_header.get('Periods')
                     }
                 })
+            #print(self.imt)
         # conditional intensity measure
         self.cim = tgt_config.get('ConditionalIntensityMeasure',None)
         if self.cim is None:
@@ -364,16 +365,16 @@ class SAF_IDA:
                 'Return period (yr)': self.return_periods,
                 'Sa(T1) (g)': [],
                 'PSA (g)': [],
-                'Ds575 (s)': [],
-                'Ds595 (s)': [],
+                'DS575': [],
+                'DS595': [],
                 'Covariance': []
             }
         }
         IM_Conversion = {
-            'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)',
-            'Ds575': 'Ds575 (s)',
-            'Ds595': 'Ds595 (s)'
+            'DS575': 'DS575',
+            'DS595': 'DS595',
+            'Ds575': 'DS575',
+            'Ds595': 'DS595'
         }
         for i,cur_rp in enumerate(self.return_periods):
             cur_inputfile = os.path.join(self.input_dir,self.user_hazard_input_file[i])
@@ -499,16 +500,16 @@ class SAF_IDA:
                 'T1 (s)': self.cim.get(list(self.cim.keys())[0]).get('Period'),
                 'Return period (yr)': self.return_periods,
                 'Sa(T1) (g)': [],
-                'Ds575 (s)': [],
-                'Ds595 (s)': [],
+                'DS575': [],
+                'DS595': [],
                 'Covariance': []
             }
         }
         IM_Conversion = {
-            'DS575': 'Ds575 (s)',
-            'DS595': 'Ds595 (s)',
-            'Ds575': 'Ds575 (s)',
-            'Ds595': 'Ds595 (s)'
+            'DS575': 'DS575',
+            'DS595': 'DS595',
+            'Ds575': 'DS575',
+            'Ds595': 'DS595'
         }
         for j,cur_im in enumerate(self.imt.keys()):
             if cur_im == 'SA' or cur_im.startswith('DS') or cur_im.startswith('Ds'):
@@ -618,22 +619,24 @@ class SAF_IDA:
         # EDP IM
         self.edp_im = train_config.get('EDPIM','Sa (g)')
         # collecting EDP IM (it's hard-coded for SDR and PFA now - to fix this soon, KZ)
-        self.saf_model.get_edp_im(edpim=self.edp_im,SDR=self.edp_range.get('SDR',[-np.inf,np.inf]),PFA=self.edp_range.get('PFA',[-np.inf,np.inf]))
+        if len(self.edp_type)>0:
+            self.saf_model.get_edp_im(edpim=self.edp_im,SDR=self.edp_range.get('SDR',[-np.inf,np.inf]),PFA=self.edp_range.get('PFA',[-np.inf,np.inf]))
         # collaspse model
         self.col_model_type = train_config.get('CollapseModelType','OLS')
         self.col_model_param = train_config.get('CollapseModelParam',[])
         self.saf_model.compute_collapse_model(modeltag=self.col_model_type,modelcoef=self.col_model_param)
         # EDP model
-        self.edp_model_type = train_config.get('EDPModelType','OLS')
-        self.edp_model_param = train_config.get('EDPModelParam',[])
-        self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
+        if len(self.edp_type)>0:
+            self.edp_model_type = train_config.get('EDPModelType','OLS')
+            self.edp_model_param = train_config.get('EDPModelParam',[])
+            self.saf_model.compute_edp_model(modeltag=self.edp_model_type,modelcoef=self.edp_model_param)
 
         # return
         return 0
 
     def model_prediction(self, pred_config, output_dir):
         # load info
-        self.pred_response = [('All','All')]
+        self.pred_response = [(pred_config.get('Site'),pred_config.get('Response'))]
         if pred_config.get('TargetType') in ['SiteSpecific','UserDefined','UserDefinedHazard']:
             # site
             cur_site = SSInfo.SiteInfo(dataname=self.site_name,site_data_dict=self.site_data_dict)
@@ -649,6 +652,7 @@ class SAF_IDA:
             # prediction
             self.site_adj = HA.SiteAdjustment(surrogate=self.saf_model,site=cur_site)
             self.site_adj.site_specific_performance_user(setname=self.pred_response)
+    
 
     def save_to_file(self, filename=None, outdir=None):
         # output directory
@@ -771,6 +775,15 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
         else:
             err_msg = 'run_saf_ida: TargetType not supported yet - please contact us.'
             saf_ida_job.logfile.write_msg(msg=err_msg, msg_type='ERROR')
+        # kz: save
+        if tgt_config.get('SaveTarget',False):
+            if tgt_config.get('SaveCOV',False):
+                pass
+            else:
+                tmp = copy.deepcopy(saf_ida_job.site_data_dict)
+                del tmp[saf_ida_job.site_name]['Covariance']
+            with open (os.path.join(output_dir,'site_specific_target.json'),'w') as f:
+                json.dump(tmp,f,indent=2) 
 
     if 'Training' in job_type:
         # get training config
@@ -791,6 +804,20 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
             return 1
         # create a training run
         saf_ida_job.model_prediction(pred_config=pred_config, output_dir=output_dir)
+        # kz: save
+        if saf_ida_job.col_model_type in ['OLS']:
+            col_a0, col_ai = saf_ida_job.saf_model.col_model.get_coef()
+        else:
+            col_a0 = None
+            col_ai = []
+        with open (os.path.join(output_dir,'collapse_model_coef.json'),'w') as f:
+            json.dump({
+                "ModelType": saf_ida_job.col_model_type,
+                "Scale": "LogLog",
+                "IMResponse": saf_ida_job.collapse_im,
+                "IMPredictor": [1]+saf_ida_job.saf_model.im_predictor,
+                "Coefficients": [col_a0]+list(col_ai)
+            },f,indent=2) 
 
 
 if __name__ == '__main__':

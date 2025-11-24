@@ -65,3 +65,8 @@ class GlobalLinearRegression:
             return sigma0
         else:
             return R2
+        
+    def get_coef(self):
+        a0 = self.model.intercept_
+        ai = self.model.coef_
+        return a0, ai

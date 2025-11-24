@@ -149,18 +149,26 @@ class SurrogateModel:
         """
         print("Processing collapse data.")
         self.imcol = np.zeros((self.nGM,1))
-        for gmtag in self.nameGM:
-            tmptag = self.nameGM.index(gmtag)
-            tmpim = np.array(self.idadata[gmtag][cim])
-            tmpedp = np.array(self.idadata[gmtag][cedp])
-
-            loctag = np.max(np.where(tmpedp<=climit))
-            if loctag==np.size(self.idadata[gmtag][cim])-1:
+        # kz 11/25: adding a collapse-sa only format
+        if cedp == 'CollapseSa':
+            for gmtag in self.nameGM:
+                tmptag = self.nameGM.index(gmtag)
+                tmpim = np.array(self.idadata[gmtag][cim])
+                loctag = 0
                 self.imcol[tmptag,0] = tmpim[loctag]
-            else:
-                self.imcol[tmptag, 0] = np.interp(climit, tmpedp, tmpim)
-                # self.imcol[tmptag,0] = np.interp(climit,
-                #           tmpedp[loctag:loctag+1],tmpim[loctag:loctag+1])
+        else:
+            for gmtag in self.nameGM:
+                tmptag = self.nameGM.index(gmtag)
+                tmpim = np.array(self.idadata[gmtag][cim])
+                tmpedp = np.array(self.idadata[gmtag][cedp])
+
+                loctag = np.max(np.where(tmpedp<=climit))
+                if loctag==np.size(self.idadata[gmtag][cim])-1:
+                    self.imcol[tmptag,0] = tmpim[loctag]
+                else:
+                    self.imcol[tmptag, 0] = np.interp(climit, tmpedp, tmpim)
+                    # self.imcol[tmptag,0] = np.interp(climit,
+                    #           tmpedp[loctag:loctag+1],tmpim[loctag:loctag+1])
 
         self.imcol_median_raw = spst.gmean(self.imcol)
         self.imcol_std_raw = np.std(np.log(self.imcol), ddof=1)
