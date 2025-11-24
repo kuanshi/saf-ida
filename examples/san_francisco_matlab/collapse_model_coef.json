@@ -1,0 +1,15 @@
+{
+  "ModelType": "OLS",
+  "Scale": "LogLog",
+  "IMResponse": "Sa (g)",
+  "IMPredictor": [
+    1,
+    "SaRatio",
+    "DS575"
+  ],
+  "Coefficients": [
+    0.003144828027249441,
+    1.063994358371806,
+    -0.14261602696117168
+  ]
+}
