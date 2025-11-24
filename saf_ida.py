@@ -794,6 +794,8 @@ def run_saf_ida(job_name = 'saf_ida', job_config = ''):
             return 1
         # create a training run
         saf_ida_job.model_training(input_dir=input_dir, train_config=train_config)
+        if train_config.get('PlotData',False):
+            saf_ida_job.saf_model.plot_raw_collapse(logscale=[False,False],outdir=output_dir)
 
     if 'Prediction' in job_type:
         # get training config

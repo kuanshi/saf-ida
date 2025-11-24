@@ -20,7 +20,8 @@
         "CollapseModelParam": {"SaRatioPeriodRange": [0.2, 3.0]},
         "EDPModelType": "OLS",
         "EDPModelParam": [],
-        "IMPredictor": ["SaRatio"]
+        "IMPredictor": ["SaRatio"],
+        "PlotData": true
     },
     "Prediction": {
         "Site": "SanFrancisco",

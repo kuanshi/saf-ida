@@ -19,7 +19,8 @@
         "CollapseModelType": "OLS",
         "CollapseModelParam": {"SaRatioPeriodRange": [0.2, 3.0]},
         "EDPModelType": "OLS",
-        "EDPModelParam": []
+        "EDPModelParam": [],
+        "PlotData": true
     },
     "Prediction": {
         "Site": "SanFrancisco",
