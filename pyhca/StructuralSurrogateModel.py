@@ -526,7 +526,7 @@ class SurrogateModel:
                                             modeltype=modeltag,modelpara=modelcoef)
         print("EDP models computed.")
 
-    def plot_raw_collapse(self,logscale=[False,False]):
+    def plot_raw_collapse(self,logscale=[False,False],outdir=None):
         """
         plot_raw_collapse: plot the raw collapse Sa versus supplemental IMs
         - Input: none
@@ -551,7 +551,10 @@ class SurrogateModel:
                     plt.xscale('log')
                 if logscale[1]:
                     plt.yscale('log')
-                plt.show()
+                if outdir is not None:
+                    plt.savefig(os.path.join(outdir,'collapse_sa_vs_{}.png'.format(self.im_predictor[i])),dpi=600)
+                else:
+                    plt.show()
             #
             if len(self.im_predictor) == 1:
                 curfig = plt.figure()
@@ -575,7 +578,10 @@ class SurrogateModel:
                     plt.xscale('log')
                 if logscale[1]:
                     plt.yscale('log')
-                plt.show()
+                if outdir is not None:
+                    plt.savefig(os.path.join(outdir,'collapse_sa_vs_{}.png'.format(self.im_predictor[0])),dpi=600)
+                else:
+                    plt.show()
             elif len(self.im_predictor) == 2:
                 curax = plt.figure(figsize=(8, 6)).add_subplot(projection='3d')
                 x1 = np.exp(self.col_model.X[:, 0])
@@ -602,7 +608,10 @@ class SurrogateModel:
                     curax.set_yscale('log')
                 if logscale[1]:
                     curax.set_zscale('log')
-                plt.show()
+                if outdir is not None:
+                    plt.savefig(os.path.join(outdir,'collapse_sa_vs_{}_{}.png'.format(self.im_predictor[0],self.im_predictor[1])),dpi=600)
+                else:
+                    plt.show()
             else:
                 pass
 
